@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Club application</title>
+</head>
+
+<body>
+    <header>
+        <h1 id="title">Chess Club application</h1>
+    </header>
+
+    <form action="exercise.php" method="POST">
+
+        <div class="basic-info">
+            <label>Name (required)</label>
+            <input type="text" name="name" placeholder="Your name" required>
+            <br/>
+            <label>School (optional)</label>
+            <input name="school" type="text" placeholder="School">
+            <br/>
+            <label>Age(optional)</label>
+            <input type="tel" name="age" placeholder="Your Age">
+            <br/>
+        </div>
+
+        </div class="radio-button">
+            <br/>
+            <legend>Rate your Chess skill</legend>
+            <input type="radio" name="items" id="beginner" value="Beginner">
+            <label>Beginner</label>
+            <br/>
+            <input type="radio" name="items" id="intermidiate" value="Intermidiate">
+            <label>Intermidiate</label>
+            <br/>
+            <input type="radio" name="items" id="master" value="Master">
+            <label>Master</label>
+            <br/>
+       
+        <div class="checkboxes">
+            <br/>
+            <legend for="">What would you like to improve</legend>
+            <input name="improvement[]" type="checkbox" value="Your-Beginning" id="your-Beginning">
+            <label for="your-Beginning">Your Beginning</label>
+            <br/>
+            <input name="improvement[]" type="checkbox" value="Your-Attacking" id="Your-Attacking">
+            <label for="Your-Attacking">Your Attacking</label>
+            <br/>
+            <input name="improvement[]" type="checkbox" value="Your-Defending" id="Your-Defending">
+            <label for="Your-Defending">Your Defending</label>
+            <br/>
+            <input name="improvement[]" type="checkbox" value="Your-EndGame" id="Your-EndGame">
+            <label for="Your-Defending">Your End Game</label>
+            <br/>
+        </div>
+
+        <div class="suggestions">
+            <br/>
+            <label for="suggestions">Any suggestions?</label>
+            <br/>
+            <textarea id="suggestions" name="suggestions" placeholder="Enter your suggestions here..." ></textarea>
+        </div>
+
+        <br/>
+        <button id="submit" type="submit">Submit</button>
+
+    </form>
+</body>
+
+</html>
