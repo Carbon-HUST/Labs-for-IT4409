@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Survey Form</title>
+</head>
+
+<body>
+    <header>
+        <h1 id="title">SINNO Survey Form</h1>
+        <p id="description"><em>Thank you for taking the time to help us improve the platform</em></p>
+    </header>
+
+    <form action="Exercise.php" id="survey-form" method="POST">
+
+        <div class="enter-information">
+            <label id="name-label" for="name">Name</label>
+            <input id="name" name="name" type="text" placeholder="Enter your name" required>
+            <label id="email-label" for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="Enter your email" required>
+            <label id="number-label" for="number">Age (optional)</label>
+            <input id="number" name="age" type="number" placeholder="Age" min="16" max="40">
+        </div>
+
+        <div class="dropdown">
+            <label for="dropdown">Which option best describes your current role?</label>
+            <select name="role" id="dropdown" required>
+                <option value="Student">Student</option>
+                <option value="Full-time-job">Full time job</option>
+                <option value="Full-time-learner">Full time learner</option>
+                <option value="Prefer-not-to-say">Prefer not to say</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="radio-buttons">
+            <legend>Would you recommend SINNO to a friend?</legend>
+            <label for="definitely"><input type="radio" name="items" id="definitely" value="definitely" required=""> Definitely</label><br>
+            <label for="Maybe"><input type="radio" name="items" id="Maybe" value="Maybe" > Maybe</label><br>
+            <label for="NotSure"><input type="radio" name="items" id="NotSure" value="NotSure"> Not Sure</label><br>
+        </div>
+
+        <div class="checkboxes">
+            <legend for="">What would you like to see improved?</legend>
+            <label for="Frontend-Project"><input name="improvement[]" type="checkbox" value="Frontend-Project" id="Frontend-Project"> Frontend Project</label><br>
+            <label for="Backend-Project"><input name="improvement[]" type="checkbox" value="Backend-Project" id="Backend-Project"> Backend Project</label><br>
+            <label for="Data-Visualization"><input name="improvement[]" type="checkbox" value="Data-Visualization" id="Data-Visualization"> Data Visualization</label><br>
+            <label for="Challenges"><input name="improvement[]" type="checkbox" value="Challenges" id="Challenges"> Challenges</label><br>
+            <label for="Videos"><input name="improvement[]" type="checkbox" value="Videos" id="Videos"> Videos</label><br>
+        </div>
+
+        <div class="additional-comment">
+            <label for="comment">Any comments or suggestions?</label>
+            <textarea id="comment" name="comment" placeholder="Enter your comment here..." ></textarea>
+        </div>
+
+        <button id="submit" type="submit">Submit</button>
+
+    </form>
+</body>
+
+</html>
