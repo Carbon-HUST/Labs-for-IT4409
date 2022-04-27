@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<style>
+			h1 {
+				text-align: center;
+			}
+			.form {
+				width: 100%;
+				display: flex;
+				justify-content: center;
+				border: 1px solid #45a049;
+			}
+			table {
+				width: 600px;
+			}
+			.submit {
+				padding: 12px 24px;
+				background-color: #45a049;
+				color: white;
+				cursor: pointer;
+				border: 0px;
+				font-size: 20px;
+				border-radius: 3px;
+			}
+			input[type="text"],
+			select {
+				width: 100%;
+				padding: 12px 20px;
+				font-size: 20px;
+				margin: 8px 0;
+				display: inline-block;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				box-sizing: border-box;
+			}
+
+			input[type="submit"] {
+				width: 100%;
+				background-color: #4caf50;
+				color: white;
+				padding: 14px 20px;
+				margin: 8px 0;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+			}
+			td {
+				font-size: 20px;
+			}
+			input[type="submit"]:hover {
+				background-color: #45a049;
+			}
+			table .hobby {
+				border: 1px solid #45a049;
+			}
+			div {
+				border-radius: 5px;
+				background-color: #f2f2f2;
+				padding: 20px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Survey</h1>
+		<form action="./Exercise.php" method="post" class="form">
+			<table>
+				<tr>
+					<td>Your name</td>
+					<td>
+						<input
+							type="text"
+							placeholder="Enter your name..."
+							name="yourname"
+						/>
+					</td>
+				</tr>
+				<tr>
+					<td>Class</td>
+					<td>
+						<input type="text" placeholder="Your class..." name="class" />
+					</td>
+				</tr>
+				<tr>
+					<td>University</td>
+					<td>
+						<input type="text" placeholder="University..." name="university" />
+					</td>
+				</tr>
+				<tr>
+					<td>Hobby</td>
+					<td>
+						<table class="hobby">
+							<tr>
+								<td>Cat</td>
+								<td>
+									<label for="">
+										<input type="radio" name="cat" value="yes" />
+										<label for="">Yes</label>
+									</label>
+									<label for="">
+										<input type="radio" name="cat" value="no" checked="true" />
+										<label for="">No</label>
+									</label>
+								</td>
+							</tr>
+							<tr>
+								<td>Reading box</td>
+								<td>
+									<label for="">
+										<input type="radio" name="reading" value="yes" />
+										<label for="">Yes</label>
+									</label>
+									<label for="">
+										<input
+											type="radio"
+											name="reading"
+											value="no"
+											checked="true"
+										/>
+										<label for="">No</label>
+									</label>
+								</td>
+							</tr>
+							<tr>
+								<td>Cooking</td>
+								<td>
+									<label for="">
+										<input type="radio" name="cooking" value="yes" />
+										<label for="">Yes</label>
+									</label>
+									<label for="">
+										<input
+											type="radio"
+											name="cooking"
+											value="no"
+											checked="true"
+										/>
+										<label for="">No</label>
+									</label>
+								</td>
+							</tr>
+							<tr>
+								<td>Coding</td>
+								<td>
+									<label for="">
+										<input type="radio" name="coding" value="yes" />
+										<label for="">Yes</label>
+									</label>
+									<label for="">
+										<input
+											type="radio"
+											name="coding"
+											value="no"
+											checked="true"
+										/>
+										<label for="">No</label>
+									</label>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>
+						<button type="submit" class="submit" name="submit" value="submit">
+							Submit
+						</button>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</body>
+</html>
