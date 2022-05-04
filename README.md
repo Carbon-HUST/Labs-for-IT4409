@@ -6,3 +6,7 @@
 - Phạm Mạnh Hùng - 20194293
 - Nguyễn Hải Anh - 20194222
 - Lê Tôn Năng - 20194339
+
+### Các branch chính:
+- main: Các bài tập Labs
+- Project: Bài tập lớn
