@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <title>Exsercise 2 CSS Box Model</title>
+        <style type="text/css">
+            body {
+                margin: 0px;
+                padding: 0px;
+            }
+            
+            #header {
+                background: #f00;
+                width: 100%;
+            }
+
+            #content {
+                float: left;
+                width: 80%;
+                height: 500px;
+            }
+
+            #sidebar {
+                background: yellow;
+                float: right;
+                width: 20%;
+                height: 500px
+            }
+            #footer {
+                background: blue;
+                clear: both;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header">Header Section</div>
+        <div id="content"> Content Section
+            <h1>This is Main content</h1>
+            <p>Main content main content main content</p>
+        </div>
+
+        <div id="sidebar">Sidebar
+            <p>Sidebar content sidebar Content sidebar content</p>
+        </div>
+        <div id="footer">Footer Section</div>
+    </body>
+</html>
