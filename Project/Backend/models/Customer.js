@@ -19,6 +19,42 @@ class Customer {
                             [username, email, password, phone || 'null', gender, dob || 'null', salt]);
         return customer;
     }
+
+    async updateProfile(id, username, phone, dob, gender) {
+        if (dob) {
+            const dateofbirth = new Date(dob);
+            dob = dateofbirth.getFullYear() + '-' + (dateofbirth.getMonth() + 1) + '-' + dateofbirth.getDate();
+        }
+
+        let query = "UPDATE CUSTOMER SET ";
+        const parameter = [];
+        if (username) {
+            query += 'name = ?, ';
+            parameter.push(username);
+        }
+
+        if (phone) {
+            query += 'phone = ?, ';
+            parameter.push(phone);
+        }
+
+        if (dob) {
+            query += 'dob = ?, ';
+            parameter.push(dob);
+        }
+
+        if (gender) {
+            query += 'gender = ?, ';
+            parameter.push(gender);
+        }
+
+        query = query.substring(0, query.length - 2);
+        query += ' WHERE id = ?';
+        parameter.push(id);
+
+        const [rows] =  await pool.query(query, parameter);
+        return rows;
+    }
 }
 
 module.exports = new Customer();
