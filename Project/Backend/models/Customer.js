@@ -9,6 +9,15 @@ class Customer {
         return rows;
     }
 
+    async findById(id) {
+        if (!id) {
+            return null;
+        }
+
+        const [rows] = await pool.query("SELECT * FROM CUSTOMER WHERE ID = ?", [id]);
+        return rows;
+    }
+
     async create(username, email, password, phone, gender, dob, salt) {
         if (dob) {
             const dateofbirth = new Date(dob);
@@ -53,6 +62,24 @@ class Customer {
         parameter.push(id);
 
         const [rows] =  await pool.query(query, parameter);
+        return rows;
+    }
+
+    async changePassword(id, newPassword, salt) {
+        if (!newPassword || !id) {
+            return null;
+        }
+
+        const [rows] = await pool.query("UPDATE CUSTOMER SET password = ?, salt = ? where id = ?", [newPassword, salt, id]);
+        return rows;
+    }
+
+    async updateAvatar(id, avatarUrl) {
+        if (!id || !avatarUrl) {
+            return null;
+        }
+
+        const [rows] = await pool.query("UPDATE CUSTOMER SET avatar = ? where id = ?", [avatarUrl, id]);
         return rows;
     }
 }

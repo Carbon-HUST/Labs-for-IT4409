@@ -1,6 +1,7 @@
 const BaseController = require('../framework').BaseController;
 const CustomError = require('../framework').CustomError;
 const Customer = require('../models/Customer');
+const { hashPassword, comparePassword } = require('../utils/password.utils');
 
 class ProfileController extends BaseController {
     async updateProfile() {
@@ -36,6 +37,48 @@ class ProfileController extends BaseController {
         try {
             const result = await Customer.updateProfile(id, username, phone, dob, gender);
             return this.noContent();
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async changePassword() {
+        const {
+            id,
+            currentPassword,
+            newPassword,
+            confirmNewPassword
+        } = this.body;
+
+        if (!id || id < 0) {
+            throw new CustomError.BadRequestError("Id is invalid");
+        }
+
+        if (!currentPassword || !newPassword || !confirmNewPassword) {
+            throw new CustomError.BadRequestError("Not enough information provded");
+        }
+
+        const customers = await Customer.findById(id);
+        if (!customers || customers.length <= 0) {
+            throw new CustomError.BadRequestError("Account not exist");
+        }
+
+        const customer = customers[0];
+        console.log(customer);
+
+        if (!(await comparePassword(currentPassword, customer["PASSWORD"]))) {
+            throw new CustomError.BadRequestError("Current password is incorrect");
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            throw new CustomError.BadRequestError("New password and confirm password must match");
+        }
+
+        const { hashedPassword, salt } = await hashPassword(newPassword);
+
+        try {
+            const result = await Customer.changePassword(id, hashedPassword, salt);
+            return this.ok(result);
         } catch (err) {
             throw err;
         }
