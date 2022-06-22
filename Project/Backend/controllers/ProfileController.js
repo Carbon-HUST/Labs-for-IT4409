@@ -83,6 +83,11 @@ class ProfileController extends BaseController {
             throw err;
         }
     }
+
+    async updateAvatar() {
+        console.log(this.files);
+        return this.ok();
+    }
 }
 
 module.exports = ProfileController;
