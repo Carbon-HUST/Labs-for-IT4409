@@ -29,7 +29,7 @@ class Framework {
 
         const server = http.createServer(async (req, res) => {
             this.logger.info(`${req.method} - ${req.url}`);
-            req.setEncoding("utf-8");
+            //req.setEncoding("utf-8");
             req.controller = {
                 body: {},
                 params: {},
