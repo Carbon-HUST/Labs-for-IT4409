@@ -30,7 +30,12 @@ class Framework {
         const server = http.createServer(async (req, res) => {
             this.logger.info(`${req.method} - ${req.url}`);
             req.setEncoding("utf-8");
-            req.controller = {};
+            req.controller = {
+                body: {},
+                params: {},
+                query: {},
+                files: {}
+            };
             try {
                 // Execute global middlewares, 
                 // then determine which controller (and local middlewares) to use

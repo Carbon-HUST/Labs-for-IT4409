@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('./config/cloudinary.config').config();
 
 const Carbon = require('./framework');
 
