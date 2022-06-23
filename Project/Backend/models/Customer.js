@@ -75,7 +75,7 @@ class Customer {
     }
 
     async updateAvatar(id, avatarUrl) {
-        if (!id || !avatarUrl) {
+        if (!id) {
             return null;
         }
 

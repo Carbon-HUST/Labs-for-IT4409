@@ -88,8 +88,16 @@ class ProfileController extends BaseController {
     }
 
     async updateAvatar() {
-        if (this.files.length === 0) {
-            throw new CustomError.BadRequestError("No image sent");
+        if (!this.files[0]) {
+            const customer = (await Customer.findById(this.body.id))[0];
+            const avatarUrl = customer["AVATAR"];
+            const avatarPublicId = avatarUrl.slice(avatarUrl.indexOf('webtech'), avatarUrl.lastIndexOf('.'));
+            const result = await cloudinary.uploader.destroy(avatarPublicId);
+            if (result.result === "ok") {
+                await Customer.updateAvatar(this.body.id, null);
+                return this.ok(result);
+            }
+            throw new Error("Something went wrong with your avatar. Try again!");
         }
 
         const avatar = this.files[0];
