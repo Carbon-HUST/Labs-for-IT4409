@@ -22,6 +22,25 @@ class OrderController extends BaseController {
         const returnOrders = orders.slice(skip, skip + limit);
         return this.ok(returnOrders);
     }
+
+    async getOrder() {
+        const customerId = this.body.id;
+        const orderId = this.params.orderId;
+        
+        const orders = await Order.getOrderById(orderId);
+        if (orders.length === 0) {
+            return new CustomError.NotFoundError("Order not found");
+        }
+
+        let order = orders[0];
+        if (order["CUSTOMER_ID"] !== customerId) {
+            return new CustomError.BadRequestError("You're not the owner of this order");
+        }
+
+        const itemsInOrder = await Order.getItemInOrder(orderId);
+        order.items = itemsInOrder;
+        return order;
+    }
 }
 
 module.exports = OrderController;

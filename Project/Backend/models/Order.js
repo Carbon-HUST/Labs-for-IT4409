@@ -5,12 +5,23 @@ class Order {
         const [rows] = await pool.query("SELECT * FROM order_ WHERE customer_id = ?", [customerId]);
         return rows;
     }
+
     async getAllPaging(id, page, limit) {
         page = Number(page) || 1;
         limit = Number(limit) || 10;
         const skip = (page - 1) * limit;
 
         const [rows] = await pool.query("SELECT * FROM order_ WHERE customer_id = ? LIMIT ? OFFSET ?", [id, limit, skip]);
+        return rows;
+    }
+
+    async getOrderById(id) {
+        const [rows] = await pool.query("SELECT * FROM order_ WHERE id = ?", [id]);
+        return rows;
+    }
+
+    async getItemInOrder(orderId) {
+        const [rows] = await pool.query("SELECT order_item.*, book.title, book.thumbnail, FROM order_item, book WHERE order_item.order_id = ? AND order_item.book_id = book.id", [orderId]);
         return rows;
     }
 }
