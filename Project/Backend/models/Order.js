@@ -24,6 +24,11 @@ class Order {
         const [rows] = await pool.query("SELECT order_item.*, book.title, book.thumbnail, FROM order_item, book WHERE order_item.order_id = ? AND order_item.book_id = book.id", [orderId]);
         return rows;
     }
+
+    async updateStatus(orderId, newStatus) {
+        const [rows] = await pool.query("UPDATE order_ SET status ? WHERE id = ?", [newStatus, orderId]);
+        return rows;
+    }
 }
 
 module.exports = new Order();
