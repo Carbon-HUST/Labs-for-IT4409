@@ -18,14 +18,14 @@ class Customer {
         return rows;
     }
 
-    async create(username, email, password, phone, gender, dob, salt) {
+    async create(username, email, password, phone, gender, dob) {
         if (dob) {
             const dateofbirth = new Date(dob);
             dob = dateofbirth.getDate() + '/' + (dateofbirth.getMonth() + 1) + '/' + dateofbirth.getFullYear();
         }
         const customer = 
-            await pool.query("INSERT INTO CUSTOMER(name, email, password, phone, gender, dob, salt) VALUES(?, ?, ?, ?, ?, ?, ?)",
-                            [username, email, password, phone || 'null', gender, dob || 'null', salt]);
+            await pool.query("INSERT INTO CUSTOMER(name, email, password, phone, gender, dob) VALUES(?, ?, ?, ?, ?, ?, ?)",
+                            [username, email, password, phone || 'null', gender, dob || 'null']);
         return customer;
     }
 
@@ -65,12 +65,12 @@ class Customer {
         return rows;
     }
 
-    async changePassword(id, newPassword, salt) {
+    async changePassword(id, newPassword) {
         if (!newPassword || !id) {
             return null;
         }
 
-        const [rows] = await pool.query("UPDATE CUSTOMER SET password = ?, salt = ? where id = ?", [newPassword, salt, id]);
+        const [rows] = await pool.query("UPDATE CUSTOMER SET password = ?where id = ?", [newPassword, id]);
         return rows;
     }
 
