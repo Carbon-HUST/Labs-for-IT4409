@@ -10,23 +10,28 @@ class AuthorController extends BaseController {
         const authors = await Author.getAll();
 
         const count = authors.length;
-        const totalPage = count / limit + ((count % limit == 0) ? 0 : 1);
+        const totalPage = Math.floor(count / limit) + ((count % limit == 0) ? 0 : 1);
         if (page > totalPage) page = 1;
         const skip = (page - 1) * limit;
 
         const returnAuthors = authors.slice(skip, skip + limit);
-        return this.ok(returnAuthors);
+        return this.ok({
+            page,
+            pageSize: limit,
+            authors: returnAuthors,
+            totalPage
+        });
     }
 
     async get() {
         const authorId = this.params.authorId;
         if (!authorId ||authorId < 0) {
-            return new CustomError.BadRequestError("Author id is invalid");
+            throw new CustomError.BadRequestError("Author id is invalid");
         }
 
-        const author = await Author.findById(id);
+        const author = await Author.findById(authorId);
         if (author == null) {
-            return new CustomError.NotFoundError("Author not found");
+            throw new CustomError.NotFoundError("Author not found");
         }
 
         return this.ok(author);
@@ -35,11 +40,12 @@ class AuthorController extends BaseController {
     async create() {
         const authorName = this.body.name;
         if (!authorName) {
-            return new CustomError.BadRequestError("Author's name is missing");
+            throw new CustomError.BadRequestError("Author's name is missing");
         }
 
-        if (await Author.create(authorName)) {
-            return this.created({});
+        const insertedId = await Author.create(authorName);
+        if (insertedId) {
+            return this.created({ insertedId });
         }
 
         throw new Error("Something went wrong! Please try again!");
@@ -50,7 +56,11 @@ class AuthorController extends BaseController {
         const authorId = this.body.id;
 
         if (!authorId || !authorName) {
-            return new CustomError.BadRequestError("Author's name or id is missing");
+            throw new CustomError.BadRequestError("Author's name or id is missing");
+        }
+
+        if ((await Author.findById(authorId)) == null) {
+            throw new CustomError.BadRequestError("Author not found");
         }
 
         if (await Author.update(authorId, authorName)) {
@@ -64,6 +74,10 @@ class AuthorController extends BaseController {
         const authorId = this.params.authorId;
         if (!authorId) {
             return new CustomError.BadRequestError("Author's name is missing");
+        }
+
+        if ((await Author.findById(authorId)) == null) {
+            throw new CustomError.BadRequestError("Author not found");
         }
 
         if (await Author.delete(authorId)) {

@@ -12,7 +12,7 @@ class Author {
             return null;
         }
 
-        const [rows] = await pool.query("SELECT * FROM author WHERE id = ?");
+        const [rows] = await pool.query("SELECT * FROM author WHERE id = ?", [id]);
         console.log(rows);
         if (rows.length === 0)
             return null;
@@ -25,8 +25,9 @@ class Author {
         }
 
         const [rows] = await pool.query("INSERT INTO author(name) VALUES(?)", [name]);
-        if (rows.affectedRows < 1) {
-            return true;
+        console.log(rows);
+        if (rows.affectedRows === 1) {
+            return rows.insertId;
         }
 
         return false;
@@ -38,7 +39,7 @@ class Author {
         }
 
         const [rows] = await pool.query("UPDATE author SET name = ? WHERE id = ?", [name, id]);
-        if (rows.affectedRows < 1) {
+        if (rows.affectedRows === 1) {
             return true;
         }
 
