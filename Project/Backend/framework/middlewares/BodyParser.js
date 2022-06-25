@@ -1,6 +1,8 @@
+const formidable = require('formidable');
 const { StringDecoder } = require('string_decoder');
-const form = require('../config/FormidableConfig');
 const { BadRequestError, UnsupportedMediaTypeError } = require('../errors');
+const fs = require('fs');
+const path = require('path');
 
 const BodyParser = (req, res, next) => {
     const contentType = req.headers['content-type'];
@@ -28,7 +30,13 @@ const BodyParser = (req, res, next) => {
         const files = [];
         if (!req.controller.files)
             req.controller.files = {};
-
+        
+        const form = formidable({
+                multiples: true,
+                uploadDir: path.join(__dirname, '..', 'upload'),
+                keepExtensions: true
+            });
+        
         form
             .on('file', (filename, file) => {
                 files.push({filename, file});
@@ -40,10 +48,9 @@ const BodyParser = (req, res, next) => {
 
         form.parse(req, (err, fields, files) => {
             if (err) {
-                throw new BadRequestError(err);
+                throw err;
             }
         });
-
     }
     else {
         throw new UnsupportedMediaTypeError("Content type unsupported");

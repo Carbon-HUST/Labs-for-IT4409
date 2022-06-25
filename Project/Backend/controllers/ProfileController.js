@@ -2,6 +2,9 @@ const BaseController = require('../framework').BaseController;
 const CustomError = require('../framework').CustomError;
 const Customer = require('../models/Customer');
 const { hashPassword, comparePassword } = require('../utils/password.utils');
+const cloudinary = require('cloudinary').v2;
+const path = require('path');
+const fs = require('fs');
 
 class ProfileController extends BaseController {
     async updateProfile() {
@@ -85,8 +88,54 @@ class ProfileController extends BaseController {
     }
 
     async updateAvatar() {
-        console.log(this.files);
-        return this.ok();
+        if (!this.files[0]) {
+            const customer = (await Customer.findById(this.body.id))[0];
+            const avatarUrl = customer["AVATAR"];
+            const avatarPublicId = avatarUrl.slice(avatarUrl.indexOf('webtech'), avatarUrl.lastIndexOf('.'));
+            const result = await cloudinary.uploader.destroy(avatarPublicId);
+            if (result.result === "ok") {
+                await Customer.updateAvatar(this.body.id, null);
+                return this.ok(result);
+            }
+            throw new Error("Something went wrong with your avatar. Try again!");
+        }
+
+        const avatar = this.files[0];
+        if (!avatar.file.mimetype.startsWith("image")) {
+            throw new CustomError.BadRequestError("Avatar must be an image");
+        }
+        
+        const newFilePath = path.join(__dirname, '..', 'framework', 'upload', avatar.file.newFilename);
+        console.log(newFilePath);
+        let result = null;
+        try {
+
+            result = await cloudinary.uploader.upload(
+                newFilePath,
+                {
+                    use_filename: true,
+                    folder: 'webtech',
+                }
+                );
+        } catch (err) {
+            console.log(err);
+            throw err;
+        }
+        
+        fs.unlink(newFilePath, (err) => {
+            if (err)
+                throw err;
+        });
+
+        try {
+            await Customer.updateAvatar(this.body.id, result.secure_url);
+        } catch (err) {
+            throw err;
+        }
+
+        return this.ok({
+            avatarSrc: result.secure_url
+        });
     }
 }
 

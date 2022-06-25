@@ -79,8 +79,8 @@ class AuthController extends BaseController {
         }
 
         const token = jwt.sign({
-            id: customer["id"],
-            name: customer["username"],
+            id: customer["ID"],
+            name: customer["USERNAME"],
         }, process.env.JWT_SECRET, {
             expiresIn: process.env.JWT_LIFETIME
         });
