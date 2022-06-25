@@ -1,5 +1,6 @@
 const BaseController = require('../framework').BaseController;
 const Order = require('../models/Order');
+const Voucher = require('../models/Voucher');
 const CustomError = require('../framework').CustomError;
 
 class OrderController extends BaseController {
@@ -38,8 +39,21 @@ class OrderController extends BaseController {
         }
 
         const itemsInOrder = await Order.getItemInOrder(orderId);
-        order.items = itemsInOrder;
-        return order;
+        order["ITEMS"] = itemsInOrder;
+
+        if (order["VOUCHER_ID"] == "null") {
+            order["VOUCHER"] = "null";
+            return this.ok(order);
+        }
+
+        const voucher = (await Voucher.findById(order["VOUCHER_ID"]))[0];
+        order["VOUCHER"] = {
+            ID: voucher["ID"],
+            NAME: voucher["NAME"],
+            VALUE: voucher["VALUE"]
+        }
+
+        return this.ok(order);
     }
 }
 
