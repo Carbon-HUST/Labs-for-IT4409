@@ -7,6 +7,21 @@ const path = require('path');
 const fs = require('fs');
 
 class ProfileController extends BaseController {
+    async getProfile() {
+        const id = this.body.id;
+        console.log(id);
+        if (!id || id < 0) {
+            throw new CustomError.BadRequestError("Id is invalid");
+        }
+        const customers = await Customer.findById(id);
+        if (customers.length === 0) {
+            return new CustomError.NotFoundError("Customer not found");
+        }
+
+        const customer = customers[0];
+        return this.ok(customer);
+    }
+
     async updateProfile() {
         const {
             id,
