@@ -1,4 +1,5 @@
 const Customer = require('../models/Customer');
+const Admin = require('../models/Admin');
 const BaseController = require('../framework').BaseController;
 const CustomError = require('../framework').CustomError;
 const { hashPassword, comparePassword } = require('../utils/password.utils');
@@ -81,6 +82,41 @@ class AuthController extends BaseController {
         const token = jwt.sign({
             id: customer["ID"],
             name: customer["USERNAME"],
+        }, process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_LIFETIME
+        });
+
+        return this.ok({
+            success: true,
+            accessToken: token
+        });
+    }
+
+    async adminLogin() {
+        const { email, password } = this.body;
+
+        if (!email || !password) {
+            throw new CustomError.BadRequestError("Not enough information provided");
+        }
+        
+        if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+            throw new CustomError.BadRequestError("Invalid email");
+        }
+
+        const admins = await Admin.findByEmail(email);
+        if (!admins || admins.length === 0) {
+            throw new CustomError.BadRequestError("Invalid credentials");
+        }
+
+        const admin = admins[0];
+        if (!(await comparePassword(password, admin["PASSWORD"]))) {
+            throw new CustomError.BadRequestError("Invalid credentials");
+        }
+
+        const token = jwt.sign({
+            id: admin["ID"],
+            name: admin["NAME"],
+            role: "admin"
         }, process.env.JWT_SECRET, {
             expiresIn: process.env.JWT_LIFETIME
         });
