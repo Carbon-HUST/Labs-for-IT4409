@@ -13,7 +13,7 @@ class Author {
         }
 
         const [rows] = await pool.query("SELECT * FROM author WHERE id = ?", [id]);
-        console.log(rows);
+        //console.log(rows);
         if (rows.length === 0)
             return null;
         return rows[0];
@@ -25,7 +25,7 @@ class Author {
         }
 
         const [rows] = await pool.query("INSERT INTO author(name) VALUES(?)", [name]);
-        console.log(rows);
+        //console.log(rows);
         if (rows.affectedRows === 1) {
             return rows.insertId;
         }
