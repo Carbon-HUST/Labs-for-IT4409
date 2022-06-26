@@ -53,7 +53,7 @@ class AuthorController extends BaseController {
 
     async update() {
         const authorName = this.body.name;
-        const authorId = this.body.id;
+        const authorId = this.body.authorId;
 
         if (!authorId || !authorName) {
             throw new CustomError.BadRequestError("Author's name or id is missing");
