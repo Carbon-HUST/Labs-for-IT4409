@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "s": "Nodemon server.js"
   },
   "author": "",
   "license": "ISC",
@@ -18,5 +19,8 @@
     "mysql2": "^2.3.3",
     "path-to-regexp": "^6.2.1",
     "string_decoder": "^1.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.16"
   }
 }
