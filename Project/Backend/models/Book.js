@@ -13,9 +13,13 @@ class Book {
             return null;
         const [rows] = await pool.query("SELECT * FROM book WHERE ID = ?", [id]);
 
-        const [authorRows] = await pool.query("SELECT author.NAME FROM author, book_author WHERE book_author.AUTHOR_ID = author.ID AND book_author.BOOK_ID = ?", [id]);
+        const [authorRows] = await pool.query("SELECT author.NAME " + 
+                                              "FROM author, book_author " +
+                                              "WHERE book_author.AUTHOR_ID = author.ID AND book_author.BOOK_ID = ?", [id]);
         
-        const [genreRows] = await pool.query("SELECT genre.NAME FROM genre, book_genre WHERE book_genre.GENRE_ID = genre.ID AND book_genre.BOOK_ID = ?", [id]);
+        const [genreRows] = await pool.query("SELECT genre.NAME " +
+                                             "FROM genre, book_genre " +
+                                             "WHERE book_genre.GENRE_ID = genre.ID AND book_genre.BOOK_ID = ?", [id]);
 
         if(rows.length === 0)
             return null;
@@ -29,7 +33,9 @@ class Book {
 
     async findByTitle(title, page, limit) {
         const skip = (page - 1) * limit;
-        const [rows] = await pool.query('SELECT * FROM book WHERE TITLE LIKE ? LIMIT ? OFFSET ?', ['%'+title+'%', parseInt(limit), parseInt(skip)]);
+        const [rows] = await pool.query('SELECT * FROM book ' +
+                                        'WHERE TITLE LIKE ? ' +
+                                        'LIMIT ? OFFSET ?', ['%'+title+'%', parseInt(limit), parseInt(skip)]);
         return rows;
     }
 
