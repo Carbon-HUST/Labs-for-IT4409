@@ -24,7 +24,7 @@ class Customer {
             dob = dateofbirth.getDate() + '/' + (dateofbirth.getMonth() + 1) + '/' + dateofbirth.getFullYear();
         }
         const customer = 
-            await pool.query("INSERT INTO CUSTOMER(name, email, password, phone, gender, dob) VALUES(?, ?, ?, ?, ?, ?, ?)",
+            await pool.query("INSERT INTO CUSTOMER(name, email, password, phone, gender, dob) VALUES(?, ?, ?, ?, ?, ?)",
                             [username, email, password, phone || 'null', gender, dob || 'null']);
         return customer;
     }
