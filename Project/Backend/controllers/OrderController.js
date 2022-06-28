@@ -5,10 +5,10 @@ const CustomError = require('../framework').CustomError;
 
 class OrderController extends BaseController {
     async getAllOrders() {
-        const id = this.body.id;
+        const id = this.body.orderId;
 
         if (id <= 0) {
-            return new CustomError.BadRequestError("ID is invalid");
+            return new CustomError.BadRequestError("Order id is invalid");
         }
 
         let page = Number(this.query.page) || 1;
@@ -21,7 +21,12 @@ class OrderController extends BaseController {
         const skip = (page - 1) * limit;
 
         const returnOrders = orders.slice(skip, skip + limit);
-        return this.ok(returnOrders);
+        return this.ok({
+            page,
+            pageSize: limit,
+            orders: returnOrders,
+            totalPage
+        });
     }
 
     async getOrder() {
@@ -76,12 +81,11 @@ class OrderController extends BaseController {
             return new CustomError.BadRequestError("Order id is invalid");
         }
 
-        const orders = await Order.getOrderById(orderId);
-        if (orders.length === 0) {
+        const order = await Order.getOrderById(orderId);
+        if (order == null) {
             return new CustomError.NotFoundError("Order not found");
         }
 
-        let order = orders[0];
         if (order["CUSTOMER_ID"] !== customerId) {
             return new CustomError.BadRequestError("You're not the owner of this order");
         }

@@ -16,8 +16,15 @@ class Order {
     }
 
     async getOrderById(id) {
+        if (!id || id < 0) {
+            return null;
+        }
+
         const [rows] = await pool.query("SELECT * FROM order_ WHERE id = ?", [id]);
-        return rows;
+        //console.log(rows);
+        if (rows.length === 0)
+            return null;
+        return rows[0];
     }
 
     async getItemInOrder(orderId) {
