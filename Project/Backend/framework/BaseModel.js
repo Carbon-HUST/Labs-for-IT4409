@@ -1,5 +1,5 @@
-const { AttributeType, Validators } = require('./ModelHelper');
-const pool = require('./config');
+const { AttributeType, Validators } = require('./ModelHelpers');
+const pool = require('../config/db.config');
 
 class BaseModel {
     _tableName;
