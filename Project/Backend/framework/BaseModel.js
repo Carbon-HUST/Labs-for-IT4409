@@ -80,7 +80,7 @@ class BaseModel {
         }
 
         const obj = new this();
-        const [rows] = await pool.query(`SELECT * FROM ${obj._tableName} WHERE id = ? LIMIT 1`, [id]);
+        const [rows] = await pool.query(`SELECT * FROM ${obj._tableName} WHERE id = ?`, [id]);
         if (rows.length === 0) {
             return null;
         }
