@@ -1,6 +1,7 @@
 class ModelQueryBuilder {
+    
     static buildProjectionQuery(obj) {
-        return (obj._projections) ? obj._projections.map(field => `${obj._tableName}.${field}`).join(', ') : "*";
+        return (obj._projections) ? obj._projections.map(field => `${obj.getTablename()}.${field}`).join(', ') : "*";
     }
 
     static buildWhereQuery(obj) {
@@ -33,7 +34,7 @@ class ModelQueryBuilder {
             args
         } = this.buildWhereQuery(obj);
 
-        let query = `SELECT ${projectionQuery} FROM ${obj._tableName} WHERE ${whereQuery} `;
+        let query = `SELECT ${projectionQuery} FROM ${obj.getTablename()} WHERE ${whereQuery} `;
 
         if (obj._orderBy && Object.keys(obj._orderBy).length > 0) {
             const orderByExpression = [];
@@ -66,7 +67,7 @@ class ModelQueryBuilder {
     }
 
     static buildInsertQuery(newObj) {
-        const properties = Object.keys(newObj._attributes);
+        const properties = Object.keys(newObj.getAttributes());
         const insertFields = [];
         const placeHolders = [];
         const args = [];
@@ -77,7 +78,7 @@ class ModelQueryBuilder {
                 args.push(newObj[property]);
             }
         });
-        const query = `INSERT INTO ${newObj._tableName}(${insertFields.join(', ')}) VALUES(${placeHolders.join(', ')})`;
+        const query = `INSERT INTO ${newObj.getTablename()}(${insertFields.join(', ')}) VALUES(${placeHolders.join(', ')})`;
         return {
             query,
             args
@@ -94,14 +95,14 @@ class ModelQueryBuilder {
         const attrsKey = Object.keys(attrs);
         const setExpression = [];
         for (let key of attrsKey) {
-            if (key === 'id' || !obj._attributes[key])
+            if (key === 'id' || !obj.getAttributes()[key])
                 continue;
             setExpression.push(`${key} = ?`);
             args.push(attrs[key]);
         }
 
         args = args.concat(whereArgs);
-        const query = `UPDATE ${obj._tableName} SET ${setExpression.join(', ')} WHERE ${whereQuery}`;
+        const query = `UPDATE ${obj.getTablename()} SET ${setExpression.join(', ')} WHERE ${whereQuery}`;
         console.log(query);
         console.log(args);
         return {
@@ -116,7 +117,7 @@ class ModelQueryBuilder {
             args
         } = this.buildWhereQuery(obj);
 
-        const query = `DELETE FROM ${obj._tableName} WHERE ${whereQuery}`;
+        const query = `DELETE FROM ${obj.getTablename()} WHERE ${whereQuery}`;
         return {
             query,
             args

@@ -3,7 +3,7 @@ const { AttributeType, Validators } = require('../framework').ModelHelpers;
 
 class TestBook extends BaseModel {
     setup() {
-        this._tableName = 'book';
+        this.setTablename('book');
         this.setAttribute('isbn', AttributeType.String, [Validators.Required]);
         this.setAttribute('title', AttributeType.String, [Validators.Required]);
         this.setAttribute('edition', AttributeType.Integer);

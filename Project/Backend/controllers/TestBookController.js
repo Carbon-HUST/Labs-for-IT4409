@@ -4,7 +4,7 @@ const TestBook = require('../models/TestBook');
 class TestBookController extends BaseController {
     async get()
     {
-        const result = await TestBook.select('*').where({
+        const result = await TestBook.where({
             title: {
                 operator: 'LIKE',
                 value: "%potter%"

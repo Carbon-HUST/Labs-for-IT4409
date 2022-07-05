@@ -1,21 +1,23 @@
-const { AttributeType, Validators } = require('./ModelHelper');
+const { AttributeType, Validators } = require('./ModelHelpers');
 const ModelQueryBuilder = require('./ModelQueryBuilder');
-const pool = require('./config');
+const pool = require('../config/db.config');
 
 class BaseModel {
-    _tableName;
-    _attributes;
+    
+    //Private
+    #tableName;
+    #attributes;
 
     constructor(attrs = {}) {
         //default value for table name is name of class; subclass can overwriting this value
-        this._tableName = this.constructor.name;
+        this.#tableName = this.constructor.name;
         //store model's atributes' properties
-        this._attributes = {};
+        this.#attributes = {};
         //store errors
         this.errors = [];
 
         //every objects of every models must have an id
-        this._attributes['id'] = {
+        this.#attributes['id'] = {
             type: AttributeType.Integer,
             validators: [],
             defaultValue: null
@@ -34,10 +36,27 @@ class BaseModel {
 
     //define an attribute (data type, validators (check email, is required, ...), default value)
     setAttribute(attribute, type = AttributeType.String, validators = [], defaultValue = null) {
-        this._attributes[attribute] = { type: type, validators, defaultValue };
+        this.#attributes[attribute] = { type: type, validators, defaultValue };
         this[attribute] = defaultValue;
     }
+   
+/********************************/ 
+    // Private attrs of the class is not shown in the JSON
+    // Getter and setter serves the ModelQueryBuilder
+    getAttributes() {
+        return this.#attributes;
+    }
 
+
+    getTablename() {
+        return this.#tableName
+    }
+
+    setTablename(tableName) {
+        this.#tableName = tableName;
+    }
+
+/*************************************/
     // validate after updating
     save(atributes = []) {
         this.errors = [];
@@ -56,7 +75,7 @@ class BaseModel {
         }
 
         const obj = new this();
-        const [rows] = await pool.query(`SELECT * FROM ${obj._tableName} WHERE id = ? LIMIT 1`, [id]);
+        const [rows] = await pool.query(`SELECT * FROM ${obj.#tableName} WHERE id = ? LIMIT 1`, [id]);
         if (rows.length === 0) {
             return null;
         }
@@ -74,7 +93,7 @@ class BaseModel {
         ref._projections = [];
         //check if each field in fields is a model's attribute. If yes, save it into _projections
         fields.forEach(field => {
-            if (ref._attributes[field]) {
+            if (ref.#attributes[field]) {
                 ref._projections.push(field);
             }
         });
@@ -90,7 +109,7 @@ class BaseModel {
         }
 
         fields.forEach(field => {
-            if (this._attributes[field]) {
+            if (this.#attributes[field]) {
                 this._projections.push(field);
             }
         });
@@ -277,7 +296,7 @@ class BaseModel {
         }];
 
         const attrs = {};
-        const keys = Object.keys(this._attributes);
+        const keys = Object.keys(this.#attributes);
         for (let key of keys) {
             attrs[key] = this[key];
         }
@@ -336,7 +355,7 @@ class BaseModel {
         const keys = Object.keys(conditions);
         keys.forEach((key) => {
             //if key is not an attributes --> ignore
-            if (!obj._attributes[key]) {
+            if (!obj.#attributes[key]) {
                 return;
             }
             //otherwise, check if value is object
@@ -366,7 +385,7 @@ class BaseModel {
         if (attrs.constructor !== Object) {
             return;
         }
-        const properties = Object.keys(this._attributes);
+        const properties = Object.keys(this.#attributes);
         properties.forEach((property) => {
             if (attrs[property]) {
                 this[property] = attrs[property]
@@ -382,11 +401,11 @@ class BaseModel {
     //validate each attribute
     _checkValidation(attributes = []) {
         if (!Array.isArray(attributes) || attributes.length == 0)
-            attributes = Object.keys(this._attributes);
+            attributes = Object.keys(this.#attributes);
         attributes.forEach((attribute) => {
-            if (!this._attributes[attribute])
+            if (!this.#attributes[attribute])
                 return;
-            for (let validator of this._attributes[attribute].validators) {
+            for (let validator of this.#attributes[attribute].validators) {
                 if (!validator(attribute, this)) {
                     break;
                 }
