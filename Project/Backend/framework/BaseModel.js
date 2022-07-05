@@ -1,5 +1,6 @@
-const { AttributeType, Validators } = require('./ModelHelpers');
-const pool = require('../config/db.config');
+const { AttributeType, Validators } = require('./ModelHelper');
+const ModelQueryBuilder = require('./ModelQueryBuilder');
+const pool = require('./config');
 
 class BaseModel {
     _tableName;
@@ -16,6 +17,8 @@ class BaseModel {
         //every objects of every models must have an id
         this._attributes['id'] = {
             type: AttributeType.Integer,
+            validators: [],
+            defaultValue: null
         };
         this['id'] = null;
 
@@ -23,22 +26,22 @@ class BaseModel {
         this.setup();
 
         //initialize attributes
-        this._setInitialAttributes(attrs);
+        this._setAttributeValues(attrs);
     }
 
     //subclass will overwriting this method to define its own attributes, and make some changes if necessary (e.g: table name)
     setup() { };
 
     //define an attribute (data type, validators (check email, is required, ...), default value)
-    setAttribute(attribute, type = AttributeType.String, validators = []) {
-        this._attributes[attribute] = { type: type, validators: validators };
-        this[attribute] = null;
+    setAttribute(attribute, type = AttributeType.String, validators = [], defaultValue = null) {
+        this._attributes[attribute] = { type: type, validators, defaultValue };
+        this[attribute] = defaultValue;
     }
 
     // validate after updating
-    save() {
+    save(atributes = []) {
         this.errors = [];
-        this._checkValidations();
+        this._checkValidation(atributes);
 
         if (this.errors.length > 0) {
             return false;
@@ -47,44 +50,17 @@ class BaseModel {
         }
     }
 
-    //initialize attributes
-    _setInitialAttributes(attrs = {}) {
-        const properties = Object.keys(this._attributes);
-        properties.forEach((property) => {
-            if (attrs[property]) {
-                this[property] = attrs[property]
-            } else {
-                const namePropertyUpperCase = property.toUpperCase();
-                if (attrs[namePropertyUpperCase]) {
-                    this[property] = attrs[namePropertyUpperCase];
-                }
-            }
-        });
-    }
-
-    //validate each attribute
-    _checkValidation() {
-        const attributes = Object.keys(this._attributes);
-        attributes.forEach((attribute) => {
-            for (let validator of this._attributes[attribute].validators) {
-                if (!validator(this[attribute], this)) {
-                    break;
-                }
-            }
-        });
-    }
-
     static async findById(id) {
         if (!id || !Number(id) || id < 0) {
             throw new Error("Id is invalid");
         }
 
         const obj = new this();
-        const [rows] = await pool.query(`SELECT * FROM ${obj._tableName} WHERE id = ?`, [id]);
+        const [rows] = await pool.query(`SELECT * FROM ${obj._tableName} WHERE id = ? LIMIT 1`, [id]);
         if (rows.length === 0) {
             return null;
         }
-        obj._setInitialAttributes(rows[0]);
+        obj._setAttributeValues(rows[0]);
         return obj;
     }
 
@@ -126,7 +102,7 @@ class BaseModel {
         if (conditions.constructor !== Object)
             return ref;
         ref._conditions = [];
-        this._whereBuilder(ref, conditions);
+        this._addConditions(ref, conditions);
         return ref;
     }
 
@@ -136,7 +112,7 @@ class BaseModel {
         if (!this._conditions) {
             this._conditions = [];
         }
-        BaseModel._whereBuilder(this, conditions);
+        BaseModel._addConditions(this, conditions);
         return this;
     }
 
@@ -166,18 +142,18 @@ class BaseModel {
     }
 
     async first() {
-        const { query, args } = BaseModel._buildQuery(this);
+        const { query, args } = ModelQueryBuilder.buildSelectQuery(this);
 
+        console.log(args);
         const [rows] = await pool.query(query, args);
         if (rows.length === 0)
             return null;
-        this._setInitialAttributes(rows[0]);
+        this._setAttributeValues(rows[0]);
         return this;
     }
 
-
     async all() {
-        const { query, args } = BaseModel._buildQuery(this);
+        const { query, args } = ModelQueryBuilder.buildSelectQuery(this);
 
         const [rows] = await pool.query(query, args);
         //console.log(rows);
@@ -188,56 +164,171 @@ class BaseModel {
         return result;
     }
 
-    static _buildQuery(obj) {
-        const args = [];
-        const projectionQuery = (obj._projections) ? obj._projections.map(field => `${obj._tableName}.${field}`).join(', ') : "*";
-        let whereQuery = "1";
-        if (obj._conditions && obj._conditions.length > 0) {
-            const conditionExpressions = [];
-            for (let condition of obj._conditions) {
-                if (condition.operator === "BETWEEN" || condition.operator === "between") {
-                    conditionExpressions.push(`${condition.attribute} ${condition.operator} ? AND ?`);
-                    args.push(condition.value[0]);
-                    args.push(condition.value[1]);
-                } else {
-                    conditionExpressions.push(`${condition.attribute} ${condition.operator} ?`);
-                    args.push(condition.value);
-                }
+    static async create(attrs = {}) {
+        const newObj = new this(attrs);
+        const isValid = newObj.save();
+        if (!isValid) {
+            return {
+                success: false,
+                errors: newObj.errors
             }
-            whereQuery = conditionExpressions.join(' AND ');
-        }
-        let query = `SELECT ${projectionQuery} FROM ${obj._tableName} WHERE ${whereQuery} `;
-        if (obj._orderBy && Object.keys(obj._orderBy).length > 0) {
-            const orderByExpression = [];
-            for (let field in obj._orderBy) {
-                if (obj._orderBy[field] === 1) {
-                    orderByExpression.push(`${field} ASC`);
-                } else if (obj._orderBy[field] === -1) {
-                    orderByExpression.push(`${field} DESC`);
-                } else {
-                    continue;
-                }
-            }
-            query += `ORDER BY ${orderByExpression.join(', ')} `;
-        }
-        if (obj._limit) {
-            query += `LIMIT ? `;
-            args.push(obj._limit);
-        }
-        if (obj._skip) {
-            query += `OFFSET ? `;
-            args.push(obj._skip);
         }
 
-        console.log(query);
+        const { query, args } = ModelQueryBuilder.buildInsertQuery(newObj);
+        const [rows] = await pool.query(query, args);
+        if (rows.affectedRows === 1) {
+            return {
+                success: true,
+                insertedId: rows.insertId
+            }
+        };
 
         return {
-            query,
-            args
+            success: false,
+            errors: rows.info
         }
     }
 
-    static _whereBuilder(obj, conditions) {
+    static async update(conditions = {}, attrs = {}) {
+        if (conditions.constructor !== Object || attrs.constructor !== Object) {
+            return {
+                success: false,
+                errors: "Parameters are invalid"
+            }
+        }
+
+        const obj = new this(attrs);
+        const attrsKey = Object.keys(attrs);
+        if (attrsKey.length === 0) {
+            return {
+                success: true,
+                affectedRows: 0
+            }
+        }
+
+        if (!obj.save(attrsKey)) {
+            return {
+                success: false,
+                errors: obj.errors
+            }
+        }
+
+        obj.where(conditions);
+        const {
+            query,
+            args
+        } = ModelQueryBuilder.buildUpdateQuery(obj, attrs);
+
+        const [rows] = await pool.query(query, args);
+        if (rows.affectedRows === 0) {
+            return {
+                success: false,
+                errors: "Not found"
+            }
+        }
+
+        return {
+            success: true,
+            affectedRows: rows.affectedRows
+        }
+    }
+
+    static async delete(conditions = {}) {
+        if (conditions.constructor !== Object) {
+            return {
+                success: false,
+                errors: "Parameters are invalid"
+            }
+        }
+        const obj = new this();
+        obj.where(conditions);
+        const {
+            query,
+            args
+        } = ModelQueryBuilder.buildDeleteQuery(obj);
+
+        const [rows] = await pool.query(query, args);
+        if (rows.affectedRows === 0) {
+            return {
+                success: false,
+                errors: "Not found"
+            }
+        }
+
+        return {
+            success: true,
+            affectedRows: rows.affectedRows
+        }
+
+    }
+
+    async update() {
+        if (!this.save()) {
+            return {
+                success: false,
+                errors: this.errors
+            }
+        }
+
+        this._conditions = [{
+            attribute: 'id',
+            operator: '=',
+            value: this['id']
+        }];
+
+        const attrs = {};
+        const keys = Object.keys(this._attributes);
+        for (let key of keys) {
+            attrs[key] = this[key];
+        }
+
+        const {
+            query,
+            args
+        } = ModelQueryBuilder.buildUpdateQuery(this, attrs);
+
+        const [rows] = await pool.query(query, args);
+        if (rows.affectedRows === 0) {
+            return {
+                success: false,
+                errors: "Not found"
+            }
+        }
+
+        return {
+            success: true,
+            affectedRows: rows.affectedRows
+        }
+    }
+
+    async delete() {
+        this._conditions = [{
+            attribute: 'id',
+            operator: '=',
+            value: this['id']
+        }];
+
+        const {
+            query,
+            args
+        } = ModelQueryBuilder.buildDeleteQuery(this);
+
+        const [rows] = await pool.query(query, args);
+        if (rows.affectedRows === 0) {
+            return {
+                success: false,
+                errors: "Not found"
+            }
+        }
+
+        return {
+            success: true,
+            affectedRows: rows.affectedRows
+        }
+    }
+
+
+    static _addConditions(obj, conditions) {
         //check if conditions is object
         if (conditions.constructor !== Object)
             return;
@@ -270,6 +361,38 @@ class BaseModel {
         });
     }
 
+    //initialize attributes
+    _setAttributeValues(attrs = {}) {
+        if (attrs.constructor !== Object) {
+            return;
+        }
+        const properties = Object.keys(this._attributes);
+        properties.forEach((property) => {
+            if (attrs[property]) {
+                this[property] = attrs[property]
+            } else {
+                const namePropertyUpperCase = property.toUpperCase();
+                if (attrs[namePropertyUpperCase]) {
+                    this[property] = attrs[namePropertyUpperCase];
+                }
+            }
+        });
+    }
+
+    //validate each attribute
+    _checkValidation(attributes = []) {
+        if (!Array.isArray(attributes) || attributes.length == 0)
+            attributes = Object.keys(this._attributes);
+        attributes.forEach((attribute) => {
+            if (!this._attributes[attribute])
+                return;
+            for (let validator of this._attributes[attribute].validators) {
+                if (!validator(attribute, this)) {
+                    break;
+                }
+            }
+        });
+    }
 }
 
 module.exports = BaseModel;
