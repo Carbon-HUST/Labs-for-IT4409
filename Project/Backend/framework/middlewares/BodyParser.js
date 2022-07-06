@@ -1,5 +1,5 @@
 const formidable = require('formidable');
-const { StringDecoder } = require('string_decoder');
+const { StringDecoder } = require('node:string_decoder');
 const { BadRequestError, UnsupportedMediaTypeError } = require('../errors');
 const ErrorHandler = require('../ErrorHandler');
 const fs = require('fs');
