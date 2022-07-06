@@ -61,7 +61,6 @@ class BaseModel {
     save(atributes = []) {
         this.errors = [];
         this._checkValidation(atributes);
-
         if (this.errors.length > 0) {
             return false;
         } else {
@@ -216,7 +215,6 @@ class BaseModel {
             }
         }
 
-        const obj = new this(attrs);
         const attrsKey = Object.keys(attrs);
         if (attrsKey.length === 0) {
             return {
@@ -224,6 +222,7 @@ class BaseModel {
                 affectedRows: 0
             }
         }
+        const obj = new this(attrs);
 
         if (!obj.save(attrsKey)) {
             return {

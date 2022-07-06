@@ -10,6 +10,7 @@ class ModelQueryBuilder {
         if (obj._conditions && obj._conditions.length > 0) {
             const conditionExpressions = [];
             for (let condition of obj._conditions) {
+                console.log(condition);
                 if (condition.operator === "BETWEEN" || condition.operator === "between") {
                     conditionExpressions.push(`${condition.attribute} ${condition.operator} ? AND ?`);
                     args.push(condition.value[0]);

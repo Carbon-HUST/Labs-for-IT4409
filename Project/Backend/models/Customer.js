@@ -1,87 +1,20 @@
 const pool = require('../config/db.config');
+const { BaseModel } = require('../framework');
+const { AttributeType, Validators } = require('../framework/ModelHelpers');
 
-class Customer {
-    async findByEmail(email) {
-        if (!email) {
-            return null;
-        }
-        const [rows] = await pool.query("SELECT * FROM CUSTOMER WHERE EMAIL = ?", email);
-        return rows;
-    }
+class Customer extends BaseModel {
+    
+    setup() {
+        this.setTablename('customer');
+        this.setAttribute('name', AttributeType.String, [Validators.Required, Validators.MaxLength(255)]);
+        this.setAttribute('email', AttributeType.String, [Validators.Required, Validators.MaxLength(255), Validators.Email]);
+        this.setAttribute('password', AttributeType.String, [Validators.Required, Validators.MaxLength(1000)]);
+        this.setAttribute('phone', AttributeType.String, [Validators.MaxLength(15)]);
+        this.setAttribute('gender', AttributeType.String, [Validators.Enum(['MALE', 'FEMALE', 'OTHER'])], 'OTHER');
+        this.setAttribute('dob', AttributeType.Date, [Validators.DateTime]);
+        this.setAttribute('avatar', AttributeType.String);
 
-    async findById(id) {
-        if (!id) {
-            return null;
-        }
-
-        const [rows] = await pool.query("SELECT * FROM CUSTOMER WHERE ID = ?", [id]);
-        return rows;
-    }
-
-    async create(username, email, password, phone, gender, dob) {
-        if (dob) {
-            const dateofbirth = new Date(dob);
-            dob = dateofbirth.getDate() + '/' + (dateofbirth.getMonth() + 1) + '/' + dateofbirth.getFullYear();
-        }
-        const customer = 
-            await pool.query("INSERT INTO CUSTOMER(name, email, password, phone, gender, dob) VALUES(?, ?, ?, ?, ?, ?)",
-                            [username, email, password, phone || 'null', gender, dob || 'null']);
-        return customer;
-    }
-
-    async updateProfile(id, username, phone, dob, gender) {
-        if (dob) {
-            const dateofbirth = new Date(dob);
-            dob = dateofbirth.getFullYear() + '-' + (dateofbirth.getMonth() + 1) + '-' + dateofbirth.getDate();
-        }
-
-        let query = "UPDATE CUSTOMER SET ";
-        const parameter = [];
-        if (username) {
-            query += 'name = ?, ';
-            parameter.push(username);
-        }
-
-        if (phone) {
-            query += 'phone = ?, ';
-            parameter.push(phone);
-        }
-
-        if (dob) {
-            query += 'dob = ?, ';
-            parameter.push(dob);
-        }
-
-        if (gender) {
-            query += 'gender = ?, ';
-            parameter.push(gender);
-        }
-
-        query = query.substring(0, query.length - 2);
-        query += ' WHERE id = ?';
-        parameter.push(id);
-
-        const [rows] =  await pool.query(query, parameter);
-        return rows;
-    }
-
-    async changePassword(id, newPassword) {
-        if (!newPassword || !id) {
-            return null;
-        }
-
-        const [rows] = await pool.query("UPDATE CUSTOMER SET password = ?where id = ?", [newPassword, id]);
-        return rows;
-    }
-
-    async updateAvatar(id, avatarUrl) {
-        if (!id) {
-            return null;
-        }
-
-        const [rows] = await pool.query("UPDATE CUSTOMER SET avatar = ? where id = ?", [avatarUrl, id]);
-        return rows;
     }
 }
 
-module.exports = new Customer();
+module.exports = Customer;

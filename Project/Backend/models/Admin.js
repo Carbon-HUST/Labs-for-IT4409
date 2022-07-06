@@ -1,31 +1,16 @@
 const pool = require('../config/db.config');
+const { BaseModel } = require('../framework');
+const {AttributeType, Validators} = require('../framework/ModelHelpers');
 
-class Admin {
-    async findByEmail(email) {
-        if (!email) {
-            return null;
-        }
-        const [rows] = await pool.query("SELECT * FROM admin WHERE EMAIL = ?", email);
-        return rows;
+class Admin extends BaseModel{
+    
+    setup() {
+        this.setTablename('admin');
+        this.setAttribute('email', AttributeType.String, [Validators.Required, Validators.MaxLength(255), Validators.Email]);
+        this.setAttribute('password', AttributeType.String, [Validators.Required, Validators.MaxLength(1000)]);
     }
-
-    async findById(id) {
-        if (!id) {
-            return null;
-        }
-
-        const [rows] = await pool.query("SELECT * FROM admin WHERE id = ?", [id]);
-        return rows;
-    }
-
-    async changePassword(id, newPassword, salt) {
-        if (!newPassword || !id) {
-            return null;
-        }
-
-        const [rows] = await pool.query("UPDATE admin SET password = ?, salt = ? where id = ?", [newPassword, salt, id]);
-        return rows;
-    }
+    
+    
 }
 
-module.exports = new Admin();
+module.exports = Admin;
