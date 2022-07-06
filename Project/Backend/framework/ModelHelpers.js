@@ -26,14 +26,15 @@ const Validators = {
     },
 
     Email(attribute, model) {
-        if (typeof (model[attribute]) != "string") {
-            model.errors.push(`${attribute} should be a string`);
-            return false;
-        }
+        if(!model[attribute])
+            return true;
 
         if (/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(model[attribute])) {
             return true;
         }
+       
+        model.errors.push(`Invalid email`);
+        
         return false;
     },
 
@@ -92,7 +93,33 @@ const Validators = {
 
         model.errors.push(`${attribute} is in invalid format`);
         return false;
+    },
+
+    MinLength(minLength) {
+        return (attribute, model) => {
+            if(!model[attribute]) 
+                return true;
+            if(model[attribute].length < minLength) {
+                model.errors.push(`${attribute} must be longer than ${minLength} character`);
+                return false;
+            }
+            return true;
+        }
+    },
+
+    MaxLength(maxLength) {
+        return (attribute, model) => {
+            if(!model[attribute]) 
+                return true;
+            if(model[attribute].length > maxLength) {
+                model.errors.push(`${attribute} must not be longer than ${maxLength} character`);
+                return false;
+            }
+            return true;
+        }
     }
+    
+
 }
 
 module.exports = {

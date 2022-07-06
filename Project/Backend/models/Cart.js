@@ -1,17 +1,14 @@
 const pool = require('../config/db.config');
+const { BaseModel } = require('../framework');
+const { AttributeType, Validators } = require('../framework/ModelHelpers');
 
-class Cart {
+class Cart extends BaseModel {
     
-    async create(id) {
-
-        const row = await pool.query("SELECT * FROM cart WHERE cart.CUSTOMER_ID = ?", [id]);
-        if(!row)
-        {
-            const cart = pool.query("INSERT INTO cart(CUSTOMER_ID) VALUES (?)", [id]);
-            return cart;
-        }
-        return;
+    setup() {
+        this.setTablename('cart');
+        this.setAttribute('customer_id', AttributeType.Integer, [Validators.Required]);
     }
+
 
     async addProduct(customerId, productId, quantity) {
        // if cart has product --> find and update
@@ -40,5 +37,5 @@ class Cart {
     }
 }
 
-module.exports = new Cart();
+module.exports = Cart;
 

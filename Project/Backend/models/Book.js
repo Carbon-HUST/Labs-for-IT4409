@@ -1,12 +1,21 @@
-const pool = require('../config/db.config')
+const pool = require('../config/db.config');
+const { BaseModel } = require('../framework');
+const { AttributeType, Validators } = require('../framework/ModelHelpers');
 
-class Book {
-
-    async getAllBook(page, limit) {
-        const skip = (page-1) * limit;
-        const [rows] = await pool.query("SELECT * FROM book LIMIT ? OFFSET ? ", [parseInt(limit), parseInt(skip)]);
-        return rows;
+class Book extends BaseModel {
+    setup() {
+        this.setTablename('book');
+        this.setAttribute('isbn', AttributeType.String, [Validators.Required, Validators.MaxLength(13)]);
+        this.setAttribute('title', AttributeType.String, [Validators.Required, Validators.MaxLength(256)]);
+        this.setAttribute('edition', AttributeType.Integer,[], 1);
+        this.setAttribute('stock', AttributeType.Integer);
+        this.setAttribute('price', AttributeType.Decimal);
+        this.setAttribute('number_of_page', AttributeType.Integer);
+        this.setAttribute('thumbnail', AttributeType.String);
+        this.setAttribute('publisher_id', AttributeType.Integer, [Validators.Required]);
+        this.setAttribute('description', AttributeType.String, [Validators.MaxLength(255)]);
     }
+
 
     async findById(id) {
         if(!id)
@@ -28,14 +37,6 @@ class Book {
         row.authors = authorRows;
         row.genres = genreRows;
 
-        return rows;
-    }
-
-    async findByTitle(title, page, limit) {
-        const skip = (page - 1) * limit;
-        const [rows] = await pool.query('SELECT * FROM book ' +
-                                        'WHERE TITLE LIKE ? ' +
-                                        'LIMIT ? OFFSET ?', ['%'+title+'%', parseInt(limit), parseInt(skip)]);
         return rows;
     }
 
@@ -71,4 +72,4 @@ class Book {
     }
 }
 
-module.exports = new Book();
+module.exports = Book;

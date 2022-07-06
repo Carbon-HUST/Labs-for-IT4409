@@ -4,6 +4,7 @@ const BaseController = require('../framework').BaseController;
 const CustomError = require('../framework').CustomError;
 const { hashPassword, comparePassword } = require('../utils/password.utils');
 const jwt = require('jsonwebtoken');
+const Cart = require('../models/Cart');
 
 class AuthController extends BaseController {
     async register() {
@@ -21,24 +22,12 @@ class AuthController extends BaseController {
             throw new CustomError.BadRequestError("Not enough information provided");
         }
 
-        if (username.length == 0 || username.length > 255) {
-            throw new CustomError.BadRequestError("Invalid username");
-        }
-
-        if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-            throw new CustomError.BadRequestError("Invalid email");
-        }
-
         if (password != confirmPassword) {
             throw new CustomError.BadRequestError("Password and confirm password must match");
         }
 
-        if (dob && !Date.parse(dob)) {
-            throw new CustomError.BadRequestError("Date of birth is invalid");
-        }
-
-        const registeredCustomer = await Customer.findByEmail(email);
-        if (registeredCustomer && registeredCustomer.length > 0) {
+        const registeredCustomer = await Customer.where({email}).all();
+        if (registeredCustomer.length > 0) {
             throw new CustomError.BadRequestError("Email is already registered");
         }
 
@@ -48,10 +37,20 @@ class AuthController extends BaseController {
         } = await hashPassword(password);
 
         try {
-            const customer = await Customer.create(username, email, hashedPassword, phone, gender, dob, salt);
+            const customer = await Customer.create({name: username, email, password: hashedPassword, phone, gender, dob});
+            
+            if(customer.success && customer.insertedId) {
+                const cart = await Cart.create({customer_id: customer.insertedId});
+                if(!cart.success)
+                    throw new Error("Register failed!");
+            } else {
+                if(customer.success === false)
+                    throw new CustomError.BadRequestError(customer.errors);
+            }
+            
             return this.ok({
                 success: true,
-                id: customer[0]["insertId"]
+                id: customer.insertedId,
             });
         } catch (err) {
             throw err;
@@ -65,23 +64,19 @@ class AuthController extends BaseController {
             throw new CustomError.BadRequestError("Not enough information provided");
         }
         
-        if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-            throw new CustomError.BadRequestError("Invalid email");
-        }
 
-        const customers = await Customer.findByEmail(email);
-        if (!customers || customers.length === 0) {
+        const customer = await Customer.where({email}).first();
+        if (!customer) {
             throw new CustomError.BadRequestError("Invalid credentials");
         }
 
-        const customer = customers[0];
-        if (!(await comparePassword(password, customer["PASSWORD"]))) {
+        if (!(await comparePassword(password, customer["password"]))) {
             throw new CustomError.BadRequestError("Invalid credentials");
         }
 
         const token = jwt.sign({
-            id: customer["ID"],
-            name: customer["USERNAME"],
+            id: customer["id"],
+            name: customer["name"],
         }, process.env.JWT_SECRET, {
             expiresIn: process.env.JWT_LIFETIME
         });
@@ -91,41 +86,7 @@ class AuthController extends BaseController {
             accessToken: token
         });
     }
-
-    async adminLogin() {
-        const { email, password } = this.body;
-
-        if (!email || !password) {
-            throw new CustomError.BadRequestError("Not enough information provided");
-        }
-        
-        if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-            throw new CustomError.BadRequestError("Invalid email");
-        }
-
-        const admins = await Admin.findByEmail(email);
-        if (!admins || admins.length === 0) {
-            throw new CustomError.BadRequestError("Invalid credentials");
-        }
-
-        const admin = admins[0];
-        if (!(await comparePassword(password, admin["PASSWORD"]))) {
-            throw new CustomError.BadRequestError("Invalid credentials");
-        }
-
-        const token = jwt.sign({
-            id: admin["ID"],
-            name: admin["NAME"],
-            role: "admin"
-        }, process.env.JWT_SECRET, {
-            expiresIn: process.env.JWT_LIFETIME
-        });
-
-        return this.ok({
-            success: true,
-            accessToken: token
-        });
-    }
+    
 }
 
 module.exports = AuthController;

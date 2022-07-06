@@ -22,6 +22,11 @@ class CartController extends BaseController {
         let results = await Cart.getProductsInCart(customerId, page, limit);
         return this.ok({results});
     }
+
+    
+
+
+
 }
 
 module.exports = CartController;
