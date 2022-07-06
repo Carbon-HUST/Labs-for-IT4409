@@ -1,6 +1,7 @@
 const formidable = require('formidable');
 const { StringDecoder } = require('string_decoder');
 const { BadRequestError, UnsupportedMediaTypeError } = require('../errors');
+const ErrorHandler = require('../ErrorHandler');
 const fs = require('fs');
 const path = require('path');
 
@@ -22,24 +23,30 @@ const BodyParser = (req, res, next) => {
 
         req.on('end', () => {
             payload += decoder.end();
-            req.controller.body = {...req.controller.body, ...JSON.parse(payload)}
-            next();
+            try {
+                const jsonPayload = JSON.parse(payload);
+                req.controller.body = { ...req.controller.body, ...jsonPayload }
+                next();
+            } catch (err) {
+                //throw new BadRequestError("Request's body is in invalid format");
+                ErrorHandler(req, res, null, new BadRequestError("Format of request's body is invalid"));
+            }
         });
     }
     else if (contentType.startsWith("multipart/form-data")) {
         const files = [];
         if (!req.controller.files)
             req.controller.files = {};
-        
+
         const form = formidable({
-                multiples: true,
-                uploadDir: path.join(__dirname, '..', 'upload'),
-                keepExtensions: true
-            });
-        
+            multiples: true,
+            uploadDir: path.join(__dirname, '..', 'upload'),
+            keepExtensions: true
+        });
+
         form
             .on('file', (filename, file) => {
-                files.push({filename, file});
+                files.push({ filename, file });
             })
             .on('end', () => {
                 req.controller.files = files;
