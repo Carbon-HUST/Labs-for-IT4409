@@ -7,7 +7,7 @@ class GenreController extends BaseController {
         let page = Number(this.query.page) || 1;
         const limit = Number(this.query.limit) || 10;
 
-        const genres = await Genre.getAll();
+        const genres = await Genre.where().all();
 
         const count = genres.length;
         const totalPage = Math.floor(count / limit) + ((count % limit == 0) ? 0 : 1);
@@ -25,7 +25,7 @@ class GenreController extends BaseController {
 
     async get() {
         const genreId = this.params.genreId;
-        if (!genreId ||genreId < 0) {
+        if (!genreId) {
             throw new CustomError.BadRequestError("Genre id is invalid");
         }
 
@@ -38,36 +38,30 @@ class GenreController extends BaseController {
     }
 
     async create() {
-        const genreName = this.body.name;
-        if (!genreName) {
-            throw new CustomError.BadRequestError("Genre's name is missing");
+        const result = await Genre.create({ name: this.body.name });
+        if (result.success) {
+            return this.created({ insertedId: result.insertedId });
+        } else {
+            throw new CustomError.BadRequestError(result.errors);
         }
-
-        const insertedId = await Genre.create(genreName);
-        if (insertedId) {
-            return this.created({ insertedId });
-        }
-
-        throw new Error("Something went wrong! Please try again!");
     }
 
     async update() {
         const genreName = this.body.name;
         const genreId = this.body.genreId;
 
-        if (!genreId || !genreName) {
-            throw new CustomError.BadRequestError("Genre's name or id is missing");
+        if (!genreId) {
+            throw new CustomError.BadRequestError("Genre's id is missing");
         }
 
-        if ((await Genre.findById(genreId)) == null) {
-            throw new CustomError.BadRequestError("Genre not found");
-        }
-
-        if (await Genre.update(genreId, genreName)) {
+        const result = await Genre.update({ id: genreId }, { name: genreName });
+        if (result.success) {
             return this.noContent();
+        } else if (typeof (result.errors) === "string") {
+            throw new CustomError.NotFoundError("Genre not found");
+        } else {
+            throw new CustomError.BadRequestError(result.errors);
         }
-
-        throw new Error("Something went wrong! Please try again!");
     }
 
     async delete() {
@@ -76,15 +70,14 @@ class GenreController extends BaseController {
             return new CustomError.BadRequestError("Genre's name is missing");
         }
 
-        if ((await Genre.findById(genreId)) == null) {
-            throw new CustomError.BadRequestError("Genre not found");
-        }
-
-        if (await Genre.delete(genreId)) {
+        const result = await Genre.delete({ id: genreId });
+        if (result.success) {
             return this.noContent();
+        } else if (typeof (result.errors) === "string") {
+            throw new CustomError.NotFoundError("Genre not found");
+        } else {
+            throw new CustomError.BadRequestError(result.errors);
         }
-
-        throw new Error("Something went wrong! Please try again!");
     }
 }
 
