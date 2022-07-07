@@ -9,6 +9,7 @@ const CustomError = require('../framework').CustomError;
 
 class BookController extends BaseController {
     async getBook() {
+        // add author, publisher.
         const id = this.params.id;
         if(!id)
             throw new CustomError.BadRequestError("Invalid Id");
