@@ -1,87 +1,29 @@
-const pool = require('../config/db.config');
+const BaseModel = require('../framework').BaseModel;
+const { AttributeType, Validators } = require('../framework/ModelHelpers');
 
-class Voucher {
-    async findById(id) {
-        if (!id || id < 0) {
-            return null;
-        }
+function validateStartEndTime(_, model) {
+    const startTime = (model['start'] instanceof Date) ? model['start'] : Date.parse(model['start']);
+    const endTime = (model['end'] instanceof Date) ? model['end'] : Date.parse(model['end']);
 
-        const [rows] = await pool.query("SELECT * FROM voucher WHERE id = ?", [id]);
-        //console.log(rows);
-        if (rows.length === 0)
-            return null;
-        return rows[0];
-    }
-
-    async getAll() {
-        const [rows] = await pool.query("SELECT * FROM voucher");
-        return rows;
-    }
-
-    async create(name, start, end, value, stock, description, minCartTotal = 0, usagePerCustomer = null) {
-        if (!name || !start || !end || !value || (!stock && stock != 0) || !description) {
-            return new CustomError.BadRequestError("Not enough information provided");
-        }
-
-        const [rows] = 
-            await pool.query("INSERT INTO voucher(name, start, end, value, min_cart_total, stock, usage_per_customer, description) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", 
-                            [name, start, end, value, minCartTotal, stock, usagePerCustomer, description]);
-        //console.log(rows);
-        if (rows.affectedRows === 1) {
-            return rows.insertId;
-        }
-
+    if (startTime >= endTime) {
+        model.errors.push('Start time must be before end time');
         return false;
     }
+    return true;
+}
 
-    async update(id, updatingProperties = {}) {
-        if (!id) {
-            throw new CustomError.BadRequestError("Voucher's id is missing");
-        }
-
-        const propertyKeys = Object.keys(updatingProperties);
-        if (propertyKeys.length === 0) {
-            return true;
-        }
-
-        const properties = ['name', 'start', 'end', 'value', 'min_cart_total', 'stock', 'usage_per_customer', 'description'];
-        let query = "UPDATE voucher SET ";
-        const queryValue = [];
-
-        propertyKeys.forEach((key, index) => {
-            if (properties.indexOf(key) !== -1) {
-                if (index != propertyKeys.length - 1) {
-                    query += `${key} = ?, `;
-                } else {
-                    query += `${key} = ? `;
-                }
-                queryValue.push(updatingProperties[key]);
-            }
-        });
-
-        query += "WHERE id = ?";
-        queryValue.push(id);
-
-        const [rows] = await pool.query(query, queryValue);
-        if (rows.affectedRows === 1) {
-            return true;
-        }
-
-        return false;
-    }
-
-    async delete(id) {
-        if (!id) {
-            throw new CustomError.BadRequestError("Voucher's id is missing");
-        }
-
-        const [rows] = await pool.query("DELETE FROM voucher WHERE id = ?", [id]);
-        if (rows.affectedRows === 1) {
-            return true;
-        }
-
-        return false;
+class Voucher extends BaseModel {
+    setup() {
+        this.setTablename('voucher');
+        this.setAttribute('name', AttributeType.String, [Validators.Required, Validators.MaxLength(255), Validators.MinLength(1)]);
+        this.setAttribute('start', AttributeType.DateTime, [Validators.Required, Validators.DateTime]);
+        this.setAttribute('end', AttributeType.DateTime, [Validators.Required, Validators.DateTime, validateStartEndTime]);
+        this.setAttribute('value', AttributeType.Integer, [Validators.InRange(1, Infinity)], 0);
+        this.setAttribute('min_cart_total', AttributeType.Decimal, [Validators.Required, Validators.InRange(0, Infinity)], 0);
+        this.setAttribute('stock', AttributeType.Integer, [Validators.InRange(0, Infinity)], 0);
+        this.setAttribute('usage_per_customer', AttributeType.Integer, [Validators.InRange(0, Infinity)], 0);
+        this.setAttribute('description', AttributeType.String, [Validators.Required, Validators.MaxLength(255)]);
     }
 }
 
-module.exports = new Voucher();
+module.exports = Voucher;

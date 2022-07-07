@@ -7,7 +7,7 @@ class VoucherController extends BaseController {
         let page = Number(this.query.page) || 1;
         const limit = Number(this.query.limit) || 10;
 
-        const vouchers = await Voucher.getAll();
+        const vouchers = await Voucher.where().all();
 
         const count = vouchers.length;
         const totalPage = Math.floor(count / limit) + ((count % limit == 0) ? 0 : 1);
@@ -25,7 +25,7 @@ class VoucherController extends BaseController {
 
     async get() {
         const voucherId = this.params.voucherId;
-        if (!voucherId ||voucherId < 0) {
+        if (!voucherId) {
             throw new CustomError.BadRequestError("Voucher id is invalid");
         }
 
@@ -38,38 +38,12 @@ class VoucherController extends BaseController {
     }
 
     async create() {
-        const {
-            name: voucherName,
-            start,
-            end,
-            value,
-            stock,
-            description,
-        } = this.body;
-
-        if (!voucherName || !start || !end || !value || (!stock && stock != 0) || !description) {
-            throw new CustomError.BadRequestError("Not enough information provided");
+        const result = await Voucher.create(this.body);
+        if (result.success) {
+            return this.created({ insertedId: result.insertedId });
+        } else {
+            throw new CustomError.BadRequestError(result.errors);
         }
-
-        const startDate = Date.parse(start);
-        const endDate = Date.parse(end);
-        if (!startDate || !endDate) {
-            throw new CustomError.BadRequestError("Start time or end time is invalid");
-        }
-
-        if (startDate >= endDate) {
-            throw new CustomError.BadRequestError("Start time must be before end time");
-        }
-
-        const minCartTotal = this.body["min_cart_total"] || 0;
-        const usagePerCustomer = this.body["usage_per_customer"] || null;
-
-        const insertedId = await Voucher.create(voucherName, start, end, value, stock, description, minCartTotal, usagePerCustomer);
-        if (insertedId) {
-            return this.created({ insertedId });
-        }
-
-        throw new Error("Something went wrong! Please try again!");
     }
 
     async update() {
@@ -84,46 +58,18 @@ class VoucherController extends BaseController {
             throw new CustomError.BadRequestError("Voucher not found");
         }
 
-        let startTime = null;
-        if (this.body.start) {
-            startTime = Date.parse(this.body.start);
-            if (!startTime) {
-                throw new CustomError.BadRequestError("Start time is invalid format");
-            }
-        }
+        delete this.body['id'];
+        updatingVoucher._setAttributeValues(this.body);
+        updatingVoucher['min_cart_total'] = parseInt(updatingVoucher['min_cart_total']);
 
-        let endTime = null;
-        if (this.body.end) {
-            endTime = Date.parse(this.body.end);
-            if (!endTime) {
-                throw new CustomError.BadRequestError("End time is invalid format");
-            }
-        }
-
-        if (startTime || endTime) {
-            if (startTime == null) {
-                startTime = Date.parse(updatingVoucher["START"]);
-            } else {
-                endTime = Date.parse(updatingVoucher["END"]);
-            }
-
-            if (startTime >= endTime) {
-                throw new CustomError.BadRequestError("Start time must be before end time");
-            }
-        }
-
-        let updatingProperties = {};
-        for (let key in this.body) {
-            if (key != "id" && key != "voucherId") {
-                updatingProperties[key] = this.body[key];
-            }
-        }
-
-        if (await Voucher.update(voucherId, updatingProperties)) {
+        const result = await updatingVoucher.update();
+        if (result.success) {
             return this.noContent();
+        } else if (typeof (result.errors) === "string") {
+            throw new CustomError.NotFoundError("Voucher not found");
+        } else {
+            throw new CustomError.BadRequestError(result.errors);
         }
-
-        throw new Error("Something went wrong! Please try again!");
     }
 
     async delete() {
@@ -132,15 +78,14 @@ class VoucherController extends BaseController {
             return new CustomError.BadRequestError("Voucher's name is missing");
         }
 
-        if ((await Voucher.findById(voucherId)) == null) {
-            throw new CustomError.BadRequestError("Voucher not found");
-        }
-
-        if (await Voucher.delete(voucherId)) {
+        const result = await Voucher.delete({ id: voucherId });
+        if (result.success) {
             return this.noContent();
+        } else if (typeof (result.errors) === "string") {
+            throw new CustomError.NotFoundError("Voucher not found");
+        } else {
+            throw new CustomError.BadRequestError(result.errors);
         }
-
-        throw new Error("Something went wrong! Please try again!");
     }
 }
 
