@@ -5,7 +5,7 @@ class ModelQueryBuilder {
     }
 
     static buildWhereQuery(obj) {
-        const args = [];
+        let args = [];
         let whereQuery = "1";
         if (obj._conditions && obj._conditions.length > 0) {
             const conditionExpressions = [];
@@ -15,10 +15,23 @@ class ModelQueryBuilder {
                     conditionExpressions.push(`${condition.attribute} ${condition.operator} ? AND ?`);
                     args.push(condition.value[0]);
                     args.push(condition.value[1]);
+                } else if(condition.operator === "IN" || condition.operator === "in") {
+                    args = condition.value;
+                    const placeHolders = condition.value.map(e => {
+                        return '?';
+                    }).join(',');
+                    
+                    // let plh = [];
+                    // for(let i = 0; i < condition.value.length; i++)
+                    //     plh.push('?');
+                    // plh.join(',');
+                    // args = condition.value;
+                    
+                    conditionExpressions.push(`${condition.attribute} ${condition.operator} (${placeHolders})`);
                 } else {
                     conditionExpressions.push(`${condition.attribute} ${condition.operator} ?`);
                     args.push(condition.value);
-                }
+                } 
             }
             whereQuery = conditionExpressions.join(' AND ');
         }
