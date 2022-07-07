@@ -9,29 +9,28 @@ const fs = require('fs');
 class ProfileController extends BaseController {
     async getProfile() {
         const id = this.body.id;
-        console.log(id);
-        if (!id || id < 0) {
+        if (!id) {
             throw new CustomError.BadRequestError("Id is invalid");
         }
-        const customers = await Customer.findById(id);
-        if (customers.length === 0) {
+        const customer = await Customer.findById(id);
+        if (customer == null) {
             return new CustomError.NotFoundError("Customer not found");
         }
 
-        const customer = customers[0];
         return this.ok(customer);
     }
 
     async updateProfile() {
-        try {
-            const result = await Customer.update({id: this.body.id}, this.body);
-            if(result.success)
-                return this.noContent();
-            else 
-                throw new CustomError.BadRequestError(result.errors);
-        } catch (err) {
-            throw err;
+        const id = this.body.id;
+        if (!id) {
+            throw new CustomError.BadRequestError("Id is invalid");
         }
+
+        const result = await Customer.update({ id }, this.body);
+        if (result.success)
+            return this.noContent();
+        else
+            throw new CustomError.BadRequestError(result.errors);
     }
 
     async changePassword() {
@@ -45,12 +44,12 @@ class ProfileController extends BaseController {
         if (!currentPassword || !newPassword || !confirmNewPassword) {
             throw new CustomError.BadRequestError("Not enough information provded");
         }
-        
+
         if (newPassword !== confirmNewPassword) {
             throw new CustomError.BadRequestError("New password and confirm password must match");
         }
 
-        const customer = await Customer.where({id: this.body.id}).first();
+        const customer = await Customer.where({ id: this.body.id }).first();
         if (!customer) {
             throw new CustomError.BadRequestError("Account not exist");
         }
@@ -64,9 +63,9 @@ class ProfileController extends BaseController {
         customer['password'] = hashedPassword;
         try {
             const result = await customer.update();
-            if(result.success)
+            if (result.success)
                 return this.noContent();
-            else 
+            else
                 throw new CustomError.BadRequestError(result.errors);
         } catch (err) {
             throw err;
@@ -75,8 +74,11 @@ class ProfileController extends BaseController {
 
     async updateAvatar() {
         if (!this.files[0]) {
-            const customer = (await Customer.findById(this.body.id))[0];
-            const avatarUrl = customer["AVATAR"];
+            const customer = await Customer.findById(this.body.id);
+            const avatarUrl = customer["avatar"];
+            if (avatarUrl == null) {
+                return this.ok({});
+            }
             const avatarPublicId = avatarUrl.slice(avatarUrl.indexOf('webtech'), avatarUrl.lastIndexOf('.'));
             const result = await cloudinary.uploader.destroy(avatarPublicId);
             if (result.result === "ok") {
@@ -90,7 +92,7 @@ class ProfileController extends BaseController {
         if (!avatar.file.mimetype.startsWith("image")) {
             throw new CustomError.BadRequestError("Avatar must be an image");
         }
-        
+
         const newFilePath = path.join(__dirname, '..', 'framework', 'upload', avatar.file.newFilename);
         console.log(newFilePath);
         let result = null;
@@ -102,19 +104,19 @@ class ProfileController extends BaseController {
                     use_filename: true,
                     folder: 'webtech',
                 }
-                );
+            );
         } catch (err) {
             console.log(err);
             throw err;
         }
-        
+
         fs.unlink(newFilePath, (err) => {
             if (err)
                 throw err;
         });
 
         try {
-            await Customer.updateAvatar(this.body.id, result.secure_url);
+            await Customer.update({ id: this.body.id }, { avatar: result.secure_url });
         } catch (err) {
             throw err;
         }
