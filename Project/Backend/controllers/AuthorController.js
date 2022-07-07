@@ -29,7 +29,7 @@ class AuthorController extends BaseController {
             throw new CustomError.BadRequestError("Author id is invalid");
         }
 
-        const author = await Author.where({ id: authorId }).first();
+        const author = await Author.findById(authorId);
         if (author == null) {
             throw new CustomError.NotFoundError("Author not found");
         }
