@@ -67,7 +67,9 @@ class CartController extends BaseController {
         if(page <= 0 || page > totalPage) page = 1;
         let offset = (page - 1) * limit;
         
-        cartItems = cartItems.slice(offset, offset + limit);
+        cartItems = cartItems.slice(offset, offset + limit).sort((a, b) => {
+            return a['book_id'] - b['book_id'];
+        });
 
         let condition = [];
         cartItems.forEach(element => {
