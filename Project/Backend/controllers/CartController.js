@@ -128,13 +128,6 @@ class CartController extends BaseController {
         } catch (error) {
             throw error;
         }
-        
-
-        // if(result.success)
-        //     return this.noContent();
-        // else 
-        //     return new CustomError.BadRequestError("Cant remove item");
-
     }
 
     async changeProductQuantity() {
@@ -160,7 +153,6 @@ class CartController extends BaseController {
         if(!book)
             throw new CustomError.NotFoundError("Cant access book");
         
-        let stock = book['stock'];
 
         if(book['stock'] - (this.query.quantity - item['quantity']) < 0)
             throw new CustomError.BadRequestError("Out of stock"); 
