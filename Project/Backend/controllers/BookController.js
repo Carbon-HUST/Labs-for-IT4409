@@ -5,6 +5,7 @@ const Author = require('../models/Author');
 const BookGenre = require('../models/BookGenre');
 const Genre = require('../models/Genre');
 const Publisher = require('../models/Publisher');
+const BookImages = require('../models/BookImages');
 const CustomError = require('../framework').CustomError;
 
 class BookController extends BaseController {
@@ -42,7 +43,10 @@ class BookController extends BaseController {
             }
         }).all();
 
-        const publisher = await Publisher.findById(book['publisher_id']);        
+        const publisher = await Publisher.findById(book['publisher_id']);   
+        
+        const images = await BookImages.where({book_id: id}).all();
+
         
         let result = {
             id: id,
@@ -56,7 +60,8 @@ class BookController extends BaseController {
             stock: book['stock'],
             price: book['price'],
             number_of_page: book['number_of_page'],
-            thumbnail: book['thumbnail']
+            thumbnail: book['thumbnail'],
+            images: images.map(elem => {return elem['image_url']})
         }
 
         return this.ok({result});
