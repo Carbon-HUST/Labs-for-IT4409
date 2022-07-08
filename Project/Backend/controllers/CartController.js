@@ -48,9 +48,8 @@ class CartController extends BaseController {
 
     async getProductInCart() {
         const customerId = this.body.id;
-        const page = this.query.page || 1;
+        let page = this.query.page || 1;
         const limit = this.query.limit || 10;
-        let offset = (page - 1) * limit;
 
         if(!customerId)
             throw new CustomError.BadRequestError("Can't access cart");
@@ -60,10 +59,16 @@ class CartController extends BaseController {
             throw new CustomError.BadRequestError("Can not access cart");
         const cartId = cart['id'];
         
-        const cartItems = await CartItem.where({cart_id: cartId}).limit(parseInt(limit)).skip(offset).all();
+        let cartItems = await CartItem.where({cart_id: cartId}).all();
         if(cartItems.length === 0)
             throw new CustomError.NotFoundError("Cart empty");
         
+        const totalPage = Math.floor(cartItems.length / limit) + ((cartItems.length % limit == 0) ? 0 : 1);
+        if(page <= 0 || page > totalPage) page = 1;
+        let offset = (page - 1) * limit;
+        
+        cartItems = cartItems.slice(offset, offset + limit);
+
         let condition = [];
         cartItems.forEach(element => {
             condition.push(element['book_id']);
@@ -81,6 +86,7 @@ class CartController extends BaseController {
         if(products.length === 0)
             throw Error('Can not get products');
 
+        let total = 0;
         for(let i = 0; i < products.length; i++) {
             result.push({
                 book_id: products[i]['id'],
@@ -89,9 +95,16 @@ class CartController extends BaseController {
                 price: products[i]['price'],
                 quantity: cartItems[i]['quantity']
             })
+            total += products[i]['price'] * cartItems[i]['quantity'];
         }
 
-        return this.ok({result});
+        return this.ok({
+            page,
+            pageSize: limit,
+            totalPage,
+            result,
+            total
+        });
     }
 
     async removeProduct() {
