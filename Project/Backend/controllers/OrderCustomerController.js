@@ -2,6 +2,9 @@ const BaseController = require('../framework').BaseController;
 const Order = require('../models/Order');
 const OrderItem = require('../models/OrderItem');
 const Book = require('../models/Book');
+const Cart = require('../models/Cart');
+const Voucher = require('../models/Voucher');
+const CartItem = require('../models/CartItem');
 const CustomError = require('../framework').CustomError;
 
 class OrderCustomerController extends BaseController {
@@ -95,6 +98,78 @@ class OrderCustomerController extends BaseController {
             throw new CustomError.BadRequestError(result.errors);
         }
     }
+
+    async createOrder() {
+        let voucherId = this.body.voucherId || null;
+        let address = this.body.address;
+        let validVoucher = false;
+        const cart = await Cart.where({customer_id: this.body.id}).first();
+        if(!cart)
+            throw new CustomError.BadRequestError('Cant access cart');
+        
+        let total = await cart.getCartTotal();
+        if(total === 0)
+            throw new CustomError.BadRequestError("Cart empty");
+        
+        if(!address)
+            throw new CustomError.BadRequestError("Please provide address");
+        
+        if(voucherId) {
+            const voucher = await Voucher.findById(voucherId);
+            if(!voucher)
+                throw new CustomError.BadRequestError("Invalid Voucher");
+            
+            if(voucher.applicable(total, Date.now())) {
+                total -= total * voucher['value'] / 100;
+                voucher['stock'] -= 1;
+                voucher['min_cart_total'] = Number(voucher['min_cart_total']);
+
+                const voucherUpdateResult = await voucher.update();
+                if(!voucherUpdateResult.success)
+                    throw Error(voucherUpdateResult);
+                validVoucher = true;
+            } else {
+                throw new CustomError.BadRequestError("Invalid Voucher");
+            }
+        } 
+
+        let cartItems = await CartItem.where({cart_id: cart['id']}).orderBy('book_id').all();
+        
+        let books = await Book.where({
+            id: {
+                operator: 'IN',
+                value: cartItems.map(e => e['book_id'])
+            }
+        }).all();
+        let now = new Date();
+        let orderCreate = await Order.create({
+            time: `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`,
+            total: total,
+            voucher_id: voucherId,
+            address,
+            customer_id: this.body.id
+        });
+        if(!orderCreate.success) 
+            throw new Error(orderCreate.errors);
+        
+        let orderId = orderCreate.insertedId;
+        for(let i = 0; i < books.length; i++) {
+            orderCreate = await OrderItem.create({
+                order_id: orderId,
+                book_id: books[i]['id'],
+                quantity: cartItems[i]['quantity'],
+                unit_price: Number(books[i]['price'])
+            });
+            if(!orderCreate.success)
+                throw new Error(orderCreate.errors);
+        }
+        orderCreate = await CartItem.delete({cart_id: cart['id']});
+        if(!orderCreate.success)
+            throw new Error(orderCreate.errors);
+
+        return this.ok("Order created, pending approval");
+    }
+
 }
 
 module.exports = OrderCustomerController;
