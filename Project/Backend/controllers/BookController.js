@@ -238,7 +238,7 @@ class BookController extends BaseController {
         });
     }
 
-    async updateThumbnail() {
+    async updateBookThumbnail() {
         if(!this.files[0]) {
             const book = await Book.findById(this.params.id);
             const thumbnailUrl = book['thumbnail'];
@@ -264,31 +264,25 @@ class BookController extends BaseController {
         const newFilePath = path.join(__dirname, '..', 'framework', 'upload', thumbnail.file.newFilename);
         console.log(newFilePath);
         let result = null;
-        try {
 
-            result = await cloudinary.uploader.upload(
-                newFilePath,
-                {
-                    use_filename: true,
-                    folder: 'webtech/thumbnails',
-                }
-            );
-        } catch (err) {
-            console.log(err);
-            throw err;
-        }
+
+        result = await cloudinary.uploader.upload(
+            newFilePath,
+            {
+                use_filename: true,
+                folder: 'webtech/thumbnails',
+            }
+        );
+        
         console.log(newFilePath);
-        // fs.unlink(newFilePath, (err) => {
-        //     if (err)
-        //         throw err;
-        // });
+        fs.unlink(newFilePath, (err) => {
+            console.log("Got into callback");
+            if (err)
+                throw err;
+        });
 
 
-        try {
-            await Book.update({ id: this.body.id }, { thumbnail: result.secure_url });
-        } catch (err) {
-            throw err;
-        }
+        await Book.update({ id: this.body.id }, { thumbnail: result.secure_url });   
 
         return this.ok({
             thumbnailSrc: result.secure_url
