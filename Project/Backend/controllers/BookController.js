@@ -7,6 +7,9 @@ const Genre = require('../models/Genre');
 const Publisher = require('../models/Publisher');
 const BookImages = require('../models/BookImages');
 const CustomError = require('../framework').CustomError;
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
+const path = require('path');
 
 class BookController extends BaseController {
     async getBook() {
@@ -19,29 +22,33 @@ class BookController extends BaseController {
         if(!book)
             throw new CustomError.NotFoundError("Can not find this book");
 
-        const bookauthors = await BookAuthor.where({book_id: id}).all();
-        let authorIds = [];
-        bookauthors.forEach(e => {
-            authorIds.push(e['author_id']);
-        })
-        const authors = await Author.where({
-            id: {
-                operator: 'IN',
-                value: authorIds
-            }
-        }).all();
+        let bookauthors = await BookAuthor.where({book_id: id}).all();
+        bookauthors = bookauthors.map(e => e['author_id']);
 
-        const bookgenres = await BookGenre.where({book_id: id}).all();
-        let genreIds = [];
-        bookgenres.forEach(e => {
-            genreIds.push(e['genre_id']);
-        });
-        const genres = await Genre.where({
-            id: {
-                operator: 'IN',
-                value: genreIds
-            }
-        }).all();
+        let authors = []
+        if(bookauthors.length > 0) {
+            authors = await Author.where({
+                id: {
+                    operator: 'IN',
+                    value: bookauthors
+                }
+            }).all();
+        }
+        
+
+        let bookgenres = await BookGenre.where({book_id: id}).all();
+        
+        bookgenres = bookgenres.map(e => e['genre_id']);
+        
+        let genres = [];
+        if(bookgenres.length > 0) {
+            genres = await Genre.where({
+                id: {
+                    operator: 'IN',
+                    value: bookgenres
+                }
+            }).all();
+        }
 
         const publisher = await Publisher.findById(book['publisher_id']);   
         
@@ -171,6 +178,191 @@ class BookController extends BaseController {
             totalPage: totalPage,
             returnResults
         });
+    }
+
+
+    async createBook() {
+        const {
+            title,
+            isbn,
+            edition,
+            stock,
+            price,
+            number_of_page,
+            publisher_id,
+            description,
+        } = this.body;
+        const authors = this.body.authors || [];
+        const genres = this.body.genres || [];
+
+        const book = await Book.create({isbn, title, edition, stock, price, number_of_page, publisher_id, description});
+        
+        if(!book.success)
+            throw Error(book.errors);
+
+        let bookId = book.insertedId;
+        
+        let authorIds = [];
+        if(authors.length > 0) {
+            authorIds = await Author.where({id: {
+                operator: 'IN',
+                value: authors
+            }}).all();
+            authorIds = authorIds.map(e => {return e['id']});
+        }
+        
+        let genreIds = [];
+        if(genres.length > 0) {
+            genreIds = await Genre.where({id: {
+                operator: 'IN',
+                value: genres
+            }}).all();
+            genreIds = genreIds.map(e => {return e['id']});
+        }
+
+        for(let i = 0; i < authorIds.length; i++) {
+            let addAuthor = await BookAuthor.create({book_id: bookId, author_id: authorIds[i]});
+            if(!addAuthor.success) 
+                throw new Error(addAuthor.errors);
+        }
+
+        for(let i = 0; i < genreIds.length; i++) {
+            let addGrenres = await BookGenre.create({book_id: bookId, genre_id: genreIds[i]});
+            if(!addGrenres.success)
+                throw new Error(addGrenres.errors);
+        }
+        
+        return this.ok({
+            success: true,
+            id: book.insertedId
+        });
+    }
+
+    async updateThumbnail() {
+        if(!this.files[0]) {
+            const book = await Book.findById(this.params.id);
+            const thumbnailUrl = book['thumbnail'];
+            if(!thumbnailUrl)
+                return this.ok({});
+
+            const thumbnailPublicId = thumbnailUrl.slice(thumbnailUrl.indexOf('thumbnails'), thumbnailUrl.lastIndexOf('.'));
+            const result = await cloudinary.uploader.destroy({thumbnailPublicId});
+            if(result.result === 'ok') {
+                const thumbnailUpdate = await Book.update({id: this.params.id}, {thumbnail: null});
+                if(!thumbnailUpdate.success)
+                    throw new Error(thumbnailUpdate.errors);
+                return this.ok({result});
+            }
+            throw new Error("Something went wrong with the thumbnail");
+        }
+
+        const thumbnail = this.files[0];
+        if (!thumbnail.file.mimetype.startsWith("image")) {
+            throw new CustomError.BadRequestError("Thumbnail must be an image");
+        }
+
+        const newFilePath = path.join(__dirname, '..', 'framework', 'upload', thumbnail.file.newFilename);
+        console.log(newFilePath);
+        let result = null;
+        try {
+
+            result = await cloudinary.uploader.upload(
+                newFilePath,
+                {
+                    use_filename: true,
+                    folder: 'webtech/thumbnails',
+                }
+            );
+        } catch (err) {
+            console.log(err);
+            throw err;
+        }
+        console.log(newFilePath);
+        // fs.unlink(newFilePath, (err) => {
+        //     if (err)
+        //         throw err;
+        // });
+
+
+        try {
+            await Book.update({ id: this.body.id }, { thumbnail: result.secure_url });
+        } catch (err) {
+            throw err;
+        }
+
+        return this.ok({
+            thumbnailSrc: result.secure_url
+        });
+
+    }
+
+    async updateBook() {
+        let {
+            title,
+            isbn,
+            edition,
+            stock,
+            price,
+            number_of_page,
+            publisher_id,
+            description,
+        } = this.body;
+        let authors = this.body.authors || [];
+        let genres = this.body.genres || [];
+
+        console.log(authors);
+
+        const book = await Book.findById(this.params.id);
+        if(!book)
+            throw new CustomError.NotFoundError("Cant find this book");
+        
+        delete this.body.id;
+        delete this.body.authors;
+        delete this.body.genres;
+        console.log(this.body);
+
+        //let bookUpdateResult = await Book.update({id: this.params.id}, {title, isbn, edition, stock, price, number_of_page, publisher_id, description});
+        let bookUpdateResult = await Book.update({id: this.params.id}, this.body);
+        if(bookUpdateResult.success) {
+            if(authors.length > 0) {
+                authors = new Set(authors);
+                authors = [...authors];
+                console.log(authors);
+                bookUpdateResult = await BookAuthor.delete({book_id: this.params.id});
+                if(bookUpdateResult.success || typeof(bookUpdateResult.errors) === 'string') {
+                    for(let i = 0; i < authors.length; i++) {
+                        bookUpdateResult = await BookAuthor.create({book_id: this.params.id, author_id: authors[i]});
+                        if(!bookUpdateResult.success)
+                            throw new Error(bookUpdateResult.errors);
+                    }
+                }
+                else 
+                    throw new Error(bookUpdateResult.errors);
+            }
+            
+            if(genres.length > 0) {
+                genres = new Set(genres);
+                genres = [...genres];
+                bookUpdateResult = await BookGenre.delete({book_id: this.params.id});
+                if(bookUpdateResult.success || typeof(bookUpdateResult.errors) === 'string') {
+                    for(let i = 0; i < genres.length; i++) {
+                        bookUpdateResult = await BookGenre.create({book_id: this.params.id, genre_id: genres[i]});
+                        if(!bookUpdateResult.success)
+                            throw new Error(bookUpdateResult.errors);
+                    }
+                } 
+                else
+                    throw new Error(bookUpdateResult.errors);
+            }
+        } else {
+            throw new Error(bookUpdateResult.errors);
+        }
+
+        return this.noContent();
+    }
+
+    async deleteBook() {
+        
     }
 
 }
