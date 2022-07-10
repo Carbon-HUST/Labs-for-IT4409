@@ -297,16 +297,6 @@ class BookController extends BaseController {
     }
 
     async updateBook() {
-        let {
-            title,
-            isbn,
-            edition,
-            stock,
-            price,
-            number_of_page,
-            publisher_id,
-            description,
-        } = this.body;
         let authors = this.body.authors || [];
         let genres = this.body.genres || [];
 
@@ -321,7 +311,6 @@ class BookController extends BaseController {
         delete this.body.genres;
         console.log(this.body);
 
-        //let bookUpdateResult = await Book.update({id: this.params.id}, {title, isbn, edition, stock, price, number_of_page, publisher_id, description});
         let bookUpdateResult = await Book.update({id: this.params.id}, this.body);
         if(bookUpdateResult.success) {
             if(authors.length > 0) {
