@@ -351,7 +351,11 @@ class BookController extends BaseController {
     }
 
     async deleteBook() {
-        
+        let bookDeleteResult = await Book.update({id: this.params.id}, {stock: 0});
+        if(!bookDeleteResult.success)
+            throw Error(bookDeleteResult.errors);
+        else
+            return this.noContent();
     }
 
 }
