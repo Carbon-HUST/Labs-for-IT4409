@@ -362,7 +362,7 @@ class BaseModel {
             //if yes, use opertor and value inside value
             //if operator is null/undefined --> ignore
             if (conditions[key].constructor === Object) {
-                if (!conditions[key].operator || !conditions[key].value)
+                if (!conditions[key].operator || (!conditions[key].value && conditions[key].value !== 0))
                     return;
                 obj._conditions.push({
                     attribute: key,
