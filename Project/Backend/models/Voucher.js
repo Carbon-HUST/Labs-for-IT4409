@@ -21,7 +21,6 @@ class Voucher extends BaseModel {
         this.setAttribute('value', AttributeType.Integer, [Validators.InRange(1, Infinity)], 0);
         this.setAttribute('min_cart_total', AttributeType.Decimal, [Validators.Required, Validators.InRange(0, Infinity)], 0);
         this.setAttribute('stock', AttributeType.Integer, [Validators.InRange(0, Infinity)], 0);
-        this.setAttribute('usage_per_customer', AttributeType.Integer, [Validators.InRange(0, Infinity)], 0);
         this.setAttribute('description', AttributeType.String, [Validators.Required, Validators.MaxLength(255)]);
     }
 }
