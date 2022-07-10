@@ -23,6 +23,13 @@ class Voucher extends BaseModel {
         this.setAttribute('stock', AttributeType.Integer, [Validators.InRange(0, Infinity)], 0);
         this.setAttribute('description', AttributeType.String, [Validators.Required, Validators.MaxLength(255)]);
     }
+
+    applicable(total, time) {
+        if(Date.parse(this.start) < time && Date.parse(this.end) > time && this.stock > 0 && this.min_cart_total <= total)
+            return true;
+        else 
+            return false;
+    }
 }
 
 module.exports = Voucher;
