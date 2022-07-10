@@ -2,15 +2,15 @@ const BaseController = require('../framework').BaseController;
 const Order = require('../models/Order');
 const OrderItem = require('../models/OrderItem');
 const Book = require('../models/Book');
+const Customer = require('../models/Customer');
 const CustomError = require('../framework').CustomError;
 
-class OrderCustomerController extends BaseController {
+class OrderAdminController extends BaseController {
     async getAll() {
-        const id = this.body.id;
         let page = Number(this.query.page) || 1;
         const limit = Number(this.query.limit) || 10;
 
-        const orders = await Order.where({ customer_id: id }).all();
+        const orders = await Order.where().all();
 
         const count = orders.length;
         const totalPage = Math.floor(count / limit) + ((count % limit == 0) ? 0 : 1);
@@ -28,13 +28,12 @@ class OrderCustomerController extends BaseController {
     }
 
     async get() {
-        const id = this.body.id;
         const orderId = this.params.orderId;
         if (!orderId || orderId < 0) {
-            throw new CustomError.BadRequestError("Order id is invalid");
+            throw new CustomError.BadRequestError("Author id is invalid");
         }
 
-        const order = await Order.where({ id: orderId, customer_id: id }).first();
+        const order = await Order.findById(orderId);
         if (order == null) {
             throw new CustomError.NotFoundError("Order not found");
         }
@@ -62,26 +61,28 @@ class OrderCustomerController extends BaseController {
 
         }
 
+        const customer = await Customer.findById(order["customer_id"]);
+        if (customer == null) {
+            throw new Error("Something went wrong. Please try again");
+        }
+
+        order.customer = customer;
+        delete order["customer_id"];
+
         return this.ok(order);
     }
 
     async updateStatus() {
-        const { id, orderId, status } = this.body;
+        const { orderId, status } = this.body;
         if (!orderId || !status) {
             throw new CustomError.BadRequestError("Order id or status is missing");
         }
 
-        if (status === "APPROVED") {
-            throw new CustomError.BadRequestError("You dont have right to change the order to this status");
-        }
-        const order = await Order.where({ customer_id: id, id: orderId }).first();
+        const order = await Order.findById(orderId);
         if (order == null) {
             throw new CustomError.NotFoundError("Order not found");
         }
 
-        if (order["status"] === "APPROVED") {
-            throw new CustomError.BadRequestError("You cannot change status of this order");
-        }
         if (order["status"] === status) {
             return this.noContent();
         }
@@ -97,4 +98,4 @@ class OrderCustomerController extends BaseController {
     }
 }
 
-module.exports = OrderCustomerController;
+module.exports = OrderAdminController;
