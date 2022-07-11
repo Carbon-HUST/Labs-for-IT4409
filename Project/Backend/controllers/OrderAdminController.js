@@ -96,6 +96,98 @@ class OrderAdminController extends BaseController {
             throw new CustomError.BadRequestError(result.errors);
         }
     }
+
+    async getRevenueByTimeRange() {
+        let startTime = this.body.startTime;
+        let endTime = this.body.endTime;
+        
+        let unixEnd = new Date(endTime);
+        let unixStart = new Date(startTime);
+        if(!startTime || !endTime || Number.isNaN(unixEnd) || Number.isNaN(unixStart) || (unixEnd < unixStart))
+            throw new CustomError.BadRequestError("Invalid time range");
+        
+        let orders = await Order.where({
+            time: {
+                operator: 'BETWEEN',
+                value: [startTime, endTime]
+            }, 
+            status: "APPROVED"
+        }).orderBy('time').all();
+        
+        console.log(orders)
+        console.log(orders[0]['time'].getMonth());
+        let monthlyTotal = 0;
+        let totalPerMonth = [];
+        
+        let iterDate = unixStart;
+        for(let i = 0; i < orders.length; i++) {
+            let orderTime = new Date(orders[i]['time']);
+
+            if(iterDate.getMonth() === orderTime.getMonth()) {
+                monthlyTotal += Number(orders[i]['total']);
+            } else {
+                totalPerMonth.push({
+                    year: iterDate.getFullYear(),
+                    month: iterDate.getMonth() + 1,
+                    total: monthlyTotal
+                });
+                monthlyTotal = 0;
+                iterDate.setMonth(iterDate.getMonth() + 1);
+                i--;
+            }
+            
+        }
+        totalPerMonth.push({
+            year: iterDate.getFullYear(),
+            month: iterDate.getMonth() + 1,
+            total: monthlyTotal
+        });
+        iterDate.setDate(1);
+        while(iterDate <= unixEnd) {
+            totalPerMonth.push({
+                year: iterDate.getFullYear(),
+                month: iterDate.getMonth() + 1,
+                total: 0
+            });
+            iterDate.setMonth(iterDate.getMonth() + 1);
+        }
+        
+
+
+        let total = orders.reduce((acc, curr) => acc + Number(curr['total']), 0)
+        
+        return this.ok({
+            total,
+            numberOfOrder: orders.length,
+            monthlyTotal: totalPerMonth
+        }); 
+    }
+
+    // get total revenue or yearly revenue
+    async getRevenue() {
+        let year = this.query.year;
+        const orders = await Order.where({status: 'APPROVED'}).all();
+        if(!year) {
+            let totalRevenue = orders.reduce((acc, curr) => acc + Number(curr['total']), 0);
+            return this.ok({
+                totalRevenue
+            });
+        }
+
+        let yearlyRevenue = orders.reduce(
+            function(acc, curr) {
+                if(curr['time'].getFullYear() === Number(year))
+                    acc += Number(curr['total']);
+                return acc;
+            }, 0);
+        
+        return this.ok({
+            year,
+            revenue: yearlyRevenue
+        })
+        
+    }
+
 }
 
 module.exports = OrderAdminController;
