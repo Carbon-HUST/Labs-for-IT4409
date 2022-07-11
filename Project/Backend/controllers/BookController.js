@@ -256,8 +256,8 @@ class BookController extends BaseController {
             if (!thumbnailUrl)
                 return this.ok({});
 
-            const thumbnailPublicId = thumbnailUrl.slice(thumbnailUrl.indexOf('thumbnails'), thumbnailUrl.lastIndexOf('.'));
-            const result = await cloudinary.uploader.destroy({ thumbnailPublicId });
+            const thumbnailPublicId = thumbnailUrl.slice(thumbnailUrl.indexOf('webtech'), thumbnailUrl.lastIndexOf('.'));
+            const result = await cloudinary.uploader.destroy(thumbnailPublicId);
             if (result.result === 'ok') {
                 const thumbnailUpdate = await Book.update({ id: this.params.id }, { thumbnail: null });
                 if (!thumbnailUpdate.success)
