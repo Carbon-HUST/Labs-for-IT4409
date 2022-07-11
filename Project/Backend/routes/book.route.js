@@ -5,7 +5,8 @@ Router.get('/books', 'BookController#getBooks');
 Router.get('/book/:id', 'BookController#getBook');
 Router.get('/books/filter', 'BookController#filterBook');
 
-Router.post('/admin/book', 'BookController#createBook',[AdminAuthMiddleWare]);
-Router.put('/admin/book/:id', 'BookController#updateBook',[AdminAuthMiddleWare]);
+Router.post('/admin/book', 'BookController#createBook', [AdminAuthMiddleWare]);
+Router.put('/admin/book/:id', 'BookController#updateBook', [AdminAuthMiddleWare]);
 Router.put('/admin/book/:id/thumbnail', 'BookController#updateBookThumbnail', [AdminAuthMiddleWare]);
+Router.put('/admin/book/:id/images', 'BookController#updateImages', [AdminAuthMiddleWare]);
 Router.delete('/admin/book/:id', 'BookController#deleteBook', [AdminAuthMiddleWare]);
