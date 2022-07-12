@@ -3,6 +3,7 @@ const Order = require('../models/Order');
 const OrderItem = require('../models/OrderItem');
 const Book = require('../models/Book');
 const Customer = require('../models/Customer');
+const Voucher = require('../models/Voucher');
 const CustomError = require('../framework').CustomError;
 
 class OrderAdminController extends BaseController {
@@ -83,8 +84,41 @@ class OrderAdminController extends BaseController {
             throw new CustomError.NotFoundError("Order not found");
         }
 
+        if (order['status'] === 'APPROVED')
+            throw new CustomError.BadRequestError('Can not change the status of this order');
+
+        if (order['status'] === 'CANCELLED')
+            throw new CustomError.BadRequestError('Order is already cancelled');
+
         if (order["status"] === status) {
             return this.noContent();
+        }
+
+        if (status === 'CANCELLED') {
+            if (order['voucher_id']) {
+                let voucher = await Voucher.findById(order['voucher_id']);
+                if(voucher) {
+                    voucher['stock'] += 1;
+                    voucher['min_cart_total'] = Number(voucher['min_cart_total']);
+                    await voucher.update();
+                }
+            }
+
+            let orderItems = await OrderItem.where({order_id: orderId}).orderBy('book_id').all();
+            let bookIds = orderItems.map(e => e['book_id']);
+    
+            let books = await Book.where({
+                id: {
+                    operator: 'IN',
+                    value: bookIds
+                }
+            }).all();
+            
+            for(let i = 0; i < books.length; i++)
+            {
+               books[i]['stock'] += orderItems[i]['quantity'];
+               await books[i].update();
+            }
         }
 
         order["status"] = status;
