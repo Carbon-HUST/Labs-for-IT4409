@@ -13,12 +13,10 @@ class ProfileController extends BaseController {
         if (!id || id < 0) {
             throw new CustomError.BadRequestError("Id is invalid");
         }
-        const customers = await Customer.findById(id);
-        if (customers.length === 0) {
+        const customer = await Customer.findById(id);
+        if (!customer) {
             return new CustomError.NotFoundError("Customer not found");
         }
-
-        const customer = customers[0];
         return this.ok(customer);
     }
 
@@ -74,20 +72,20 @@ class ProfileController extends BaseController {
     }
 
     async updateAvatar() {
-        if (!this.files[0]) {
-            const customer = await Customer.findById(this.body.id);
-            const avatarUrl = customer["avatar"];
-            if (avatarUrl == null) {
-                return this.ok({});
-            }
-            const avatarPublicId = avatarUrl.slice(avatarUrl.indexOf('webtech'), avatarUrl.lastIndexOf('.'));
-            const result = await cloudinary.uploader.destroy(avatarPublicId);
-            if (result.result === "ok") {
-                await Customer.update({ id: this.body.id }, { avatar: null });
-                return this.ok(result);
-            }
-            throw new Error("Something went wrong with your avatar. Try again!");
+        if(this.body.secure_url) {
+            return this.ok({
+                avatarSrc: this.body.secure_url
+            });
         }
+
+        const customer = await Customer.findById(this.body.id);
+        const avatarUrl = customer["avatar"];
+    
+        const avatarPublicId = avatarUrl.slice(avatarUrl.indexOf('webtech'), avatarUrl.lastIndexOf('.'));
+        await cloudinary.uploader.destroy(avatarPublicId);
+
+        if(!this.files[0])
+            return this.noContent();
 
         const avatar = this.files[0];
         if (!avatar.file.mimetype.startsWith("image")) {
@@ -98,7 +96,6 @@ class ProfileController extends BaseController {
         console.log(newFilePath);
         let result = null;
         try {
-
             result = await cloudinary.uploader.upload(
                 newFilePath,
                 {
@@ -111,10 +108,14 @@ class ProfileController extends BaseController {
             throw err;
         }
 
-        fs.unlink(newFilePath, (err) => {
-            if (err)
-                throw err;
-        });
+        this.body.secure_url = result.secure_url;
+
+        // fs.unlink(newFilePath, (err) => {
+        //     if (err)
+        //         throw err;
+        // });
+
+        fs.unlinkSync(newFilePath);
 
         try {
             await Customer.update({ id: this.body.id }, { avatar: result.secure_url });

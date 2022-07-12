@@ -35,7 +35,6 @@ class BookController extends BaseController {
             }).all();
         }
 
-
         let bookgenres = await BookGenre.where({ book_id: id }).all();
 
         bookgenres = bookgenres.map(e => e['genre_id']);
@@ -68,7 +67,7 @@ class BookController extends BaseController {
             price: book['price'],
             number_of_page: book['number_of_page'],
             thumbnail: book['thumbnail'],
-            images: images.map(elem => { return elem['image_url'] })
+            images: images.map(elem => { return {id: elem['id'], url: elem['image_url']} })
         }
 
         return this.ok({ result });
@@ -250,21 +249,23 @@ class BookController extends BaseController {
     }
 
     async updateBookThumbnail() {
-        if (!this.files[0]) {
-            const book = await Book.findById(this.params.id);
-            const thumbnailUrl = book['thumbnail'];
-            if (!thumbnailUrl)
-                return this.ok({});
+        
+        if(this.body.secure_url)
+            return this.ok({
+                thumbnailSrc: this.body.secure_url
+            });
 
-            const thumbnailPublicId = thumbnailUrl.slice(thumbnailUrl.indexOf('webtech'), thumbnailUrl.lastIndexOf('.'));
-            const result = await cloudinary.uploader.destroy(thumbnailPublicId);
-            if (result.result === 'ok') {
-                const thumbnailUpdate = await Book.update({ id: this.params.id }, { thumbnail: null });
-                if (!thumbnailUpdate.success)
-                    throw new Error(thumbnailUpdate.errors);
-                return this.ok({ result });
-            }
-            throw new Error("Something went wrong with the thumbnail");
+        const book = await Book.findById(this.params.id);
+        const thumbnailUrl = book['thumbnail'];
+
+        const thumbnailPublicId = thumbnailUrl.slice(thumbnailUrl.indexOf('webtech'), thumbnailUrl.lastIndexOf('.'));
+        await cloudinary.uploader.destroy(thumbnailPublicId);
+
+        if(!this.files[0]) {
+            const thumbnailUpdate = await Book.update({ id: this.params.id }, { thumbnail: null });
+            if (!thumbnailUpdate.success)
+                throw new Error(thumbnailUpdate.errors);
+            return this.noContent();
         }
 
         const thumbnail = this.files[0];
@@ -273,7 +274,6 @@ class BookController extends BaseController {
         }
 
         const newFilePath = path.join(__dirname, '..', 'framework', 'upload', thumbnail.file.newFilename);
-        console.log(newFilePath);
         let result = null;
 
 
@@ -284,14 +284,12 @@ class BookController extends BaseController {
                 folder: 'webtech/thumbnails',
             }
         );
-
-        console.log(newFilePath);
-        fs.unlink(newFilePath, (err) => {
-            console.log("Got into callback");
-            if (err)
-                throw err;
-        });
-
+        this.body.secure_url = result.secure_url;
+        // fs.unlink(newFilePath, (err) => {
+        //     if (err)
+        //         throw err;
+        // });
+        fs.unlinkSync(newFilePath);
 
         await Book.update({ id: this.body.id }, { thumbnail: result.secure_url });
 

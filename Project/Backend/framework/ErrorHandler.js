@@ -6,7 +6,7 @@ const errorHandler = (req, res, next, err) => {
     }   
 
     res.statusCode = customError.statusCode;
-    res.setHeader('Content-Type', 'application/json');
+    //res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({
         msg: customError.msg
     }));
