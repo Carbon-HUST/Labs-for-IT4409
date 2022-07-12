@@ -5,7 +5,7 @@ const QueryParser = require('./middlewares/QueryParser');
 const ErrorHandler = require('./ErrorHandler');
 
 class Framework {
-    constructor(router, controllersPath="controllers/") {
+    constructor(router, controllersPath = "controllers/") {
         this._router = router;
         this._controllersPath = controllersPath;
 
@@ -29,6 +29,7 @@ class Framework {
 
         const server = http.createServer(async (req, res) => {
             this.logger.info(`${req.method} - ${req.url}`);
+            res.setHeader('Content-Type', 'application/json');
             //req.setEncoding("utf-8");
             req.controller = {
                 body: {},
@@ -45,7 +46,7 @@ class Framework {
             }
         });
 
-        if (!callback) 
+        if (!callback)
             callback = () => {
                 this.logger.info(`Server is running at http://${hostname}:${port}`);
             }
@@ -97,14 +98,13 @@ class Framework {
 
         if (resolveData == null) {
             res.statusCode = 400;
-            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({
                 msg: "Route does not exist"
             }));
         }
         else {
             this.logger.info(`Request processing ${resolveData.controller}#${resolveData.action}`);
-            try{
+            try {
                 // Execute local middlewares,
                 // then run controller
                 this._processMiddlewares(req, res, resolveData.middlewares, this._evokeController.bind(this));
@@ -120,7 +120,7 @@ class Framework {
     async _evokeController(req, res) {
         const resolveData = req.resolveData;
         const controller = new this._controllers[resolveData.controller]();
-        req.controller.params = {...req.controller.params, ...resolveData.params};
+        req.controller.params = { ...req.controller.params, ...resolveData.params };
         try {
             await controller.run(resolveData.action, req.controller); // data: params, query, body
         } catch (err) {
@@ -133,18 +133,18 @@ class Framework {
                 res.writeHead(301, controller._responseData.headers);
                 res.end();
                 break;
-            
+
             case 500:
                 res.statusCode = 500;
-                res.setHeader('Content-Type', controller._responseData.contentType);
+                // res.setHeader('Content-Type', controller._responseData.contentType);
                 res.end(JSON.stringify({
                     msg: controller._responseData.data,
                 }));
                 break;
-            
+
             default:
                 res.statusCode = controller._responseData.statusCode;
-                res.setHeader('Content-Type', controller._responseData.contentType);
+                // res.setHeader('Content-Type', controller._responseData.contentType);
                 res.end(JSON.stringify(controller._responseData.data));
         }
     }
