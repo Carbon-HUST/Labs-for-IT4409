@@ -58,11 +58,11 @@ class OrderCustomerController extends BaseController {
         order.items = orderItems;
 
         if (order["voucher_id"] != null) {
-
-        }
-
-        if (order["payment_id"] != null) {
-
+            let voucher = await Voucher.findById(order['voucher_id']);
+            if(voucher) {
+                order['voucher_name'] = voucher['name'];
+                order['voucher_value'] = voucher['value'];
+            }
         }
 
         return this.ok(order);
@@ -88,6 +88,35 @@ class OrderCustomerController extends BaseController {
         if (order["status"] === status) {
             return this.noContent();
         }
+
+        if(order['status'] === 'CANCELLED')
+            throw new CustomError.BadRequestError('Order is already cancelled');
+        
+        if(order['voucher_id']) {
+            let voucher = await Voucher.findById(order['voucher_id']);
+            if(voucher) {
+                voucher['stock'] += 1;
+                voucher['min_cart_total'] = Number(voucher['min_cart_total']);
+                await voucher.update();
+            }
+        }
+
+        let orderItems = await OrderItem.where({order_id: orderId, customer_id: id}).orderBy('book_id').all();
+        let bookIds = orderItems.map(e => e['book_id']);
+
+        let books = await Book.where({
+            id: {
+                operator: 'IN',
+                value: bookIds
+            }
+        }).all();
+        
+        for(let i = 0; i < books.length; i++)
+        {
+           books[i]['stock'] += orderItems[i]['quantity'];
+           await books[i].update();
+        }
+
 
         order["status"] = status;
         order["total"] = parseInt(order["total"]);
