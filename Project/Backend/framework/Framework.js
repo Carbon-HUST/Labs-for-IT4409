@@ -24,7 +24,7 @@ class Framework {
 
     // PUBLIC METHODS
 
-    async listen(port = 3000, hostname = 'localhost', callback) {
+    async listen(port = 3000, callback) {
         this._controllers = this._autoLoad(this._controllersPath);
 
         const server = http.createServer(async (req, res) => {
@@ -48,13 +48,13 @@ class Framework {
 
         if (!callback)
             callback = () => {
-                this.logger.info(`Server is running at http://${hostname}:${port}`);
+                this.logger.info(`Server is running`);
             }
 
         if (typeof callback !== "function")
             throw new Error("Third argument of listen method must be a function");
 
-        server.listen(port, hostname, callback);
+        server.listen(port, callback);
     }
 
     useMiddleware(middleware) {

@@ -1,5 +1,5 @@
 const BaseController = require('../framework').BaseController;
-const Publisher = require('../models/publisher');
+const Publisher = require('../models/Publisher');
 const CustomError = require('../framework').CustomError;
 
 class PublisherController extends BaseController {
