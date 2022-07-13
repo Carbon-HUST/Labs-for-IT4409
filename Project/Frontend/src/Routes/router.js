@@ -4,6 +4,7 @@ import Homepage from "../Pages/Home/Homepage";
 import Page404 from "../Pages/Page404/Page404";
 import LoginForm from "../sections/auth/LoginForm";
 import RegisterForm from "../sections/auth/RegisterForm";
+import Cart from "../Pages/Cart/Cart";
 
 export default function Router() {
 	return useRoutes([
@@ -24,6 +25,13 @@ export default function Router() {
 		{
 			path: "/404",
 			element: <Page404 />,
+		},
+		{
+			path: "/cart", 
+			element: <Cart />,
+			children: [
+				{ path: "*", element: <Navigate to='/404' /> }
+			],
 		},
 		{ path: "*", element: <Navigate to='/404' replace /> },
 	]);
