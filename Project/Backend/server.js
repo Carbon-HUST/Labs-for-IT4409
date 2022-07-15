@@ -4,7 +4,7 @@ const cors = require('cors');
 const Carbon = require('./framework');
 
 const corsOptions = {
-    origin: process.env.ALLOWED_ORIGIN.split(' '),
+    origin: process.env.ALLOWED_ORIGIN.split(' ').map(origin => new RegExp(origin)),
     optionsSuccessStatus: 200
 }
 
