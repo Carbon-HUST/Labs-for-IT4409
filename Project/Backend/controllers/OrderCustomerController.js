@@ -25,7 +25,7 @@ class OrderCustomerController extends BaseController {
         return this.ok({
             page,
             pageSize: limit,
-            orders: returnedOrders,
+            results: returnedOrders,
             totalPage
         });
     }
@@ -59,13 +59,13 @@ class OrderCustomerController extends BaseController {
 
         if (order["voucher_id"] != null) {
             let voucher = await Voucher.findById(order['voucher_id']);
-            if(voucher) {
+            if (voucher) {
                 order['voucher_name'] = voucher['name'];
                 order['voucher_value'] = voucher['value'];
             }
         }
 
-        return this.ok(order);
+        return this.ok({ result: order });
     }
 
     async updateStatus() {
@@ -89,19 +89,19 @@ class OrderCustomerController extends BaseController {
             return this.noContent();
         }
 
-        if(order['status'] === 'CANCELLED')
+        if (order['status'] === 'CANCELLED')
             throw new CustomError.BadRequestError('Order is already cancelled');
-        
-        if(order['voucher_id']) {
+
+        if (order['voucher_id']) {
             let voucher = await Voucher.findById(order['voucher_id']);
-            if(voucher) {
+            if (voucher) {
                 voucher['stock'] += 1;
                 voucher['min_cart_total'] = Number(voucher['min_cart_total']);
                 await voucher.update();
             }
         }
 
-        let orderItems = await OrderItem.where({order_id: orderId, customer_id: id}).orderBy('book_id').all();
+        let orderItems = await OrderItem.where({ order_id: orderId, customer_id: id }).orderBy('book_id').all();
         let bookIds = orderItems.map(e => e['book_id']);
 
         let books = await Book.where({
@@ -110,11 +110,10 @@ class OrderCustomerController extends BaseController {
                 value: bookIds
             }
         }).all();
-        
-        for(let i = 0; i < books.length; i++)
-        {
-           books[i]['stock'] += orderItems[i]['quantity'];
-           await books[i].update();
+
+        for (let i = 0; i < books.length; i++) {
+            books[i]['stock'] += orderItems[i]['quantity'];
+            await books[i].update();
         }
 
 
@@ -131,39 +130,37 @@ class OrderCustomerController extends BaseController {
     async createOrder() {
         let voucherId = this.body.voucherId || null;
         let address = this.body.address;
-        let validVoucher = false;
-        const cart = await Cart.where({customer_id: this.body.id}).first();
-        if(!cart)
+        const cart = await Cart.where({ customer_id: this.body.id }).first();
+        if (!cart)
             throw new CustomError.BadRequestError('Cant access cart');
-        
+
         let total = await cart.getCartTotal();
-        if(total === 0)
+        if (total === 0)
             throw new CustomError.BadRequestError("Cart empty");
-        
-        if(!address)
+
+        if (!address)
             throw new CustomError.BadRequestError("Please provide address");
-        
-        if(voucherId) {
+
+        if (voucherId) {
             const voucher = await Voucher.findById(voucherId);
-            if(!voucher)
+            if (!voucher)
                 throw new CustomError.BadRequestError("Invalid Voucher");
-            
-            if(voucher.applicable(total, Date.now())) {
+
+            if (voucher.applicable(total, Date.now())) {
                 total -= total * voucher['value'] / 100;
                 voucher['stock'] -= 1;
                 voucher['min_cart_total'] = Number(voucher['min_cart_total']);
 
                 const voucherUpdateResult = await voucher.update();
-                if(!voucherUpdateResult.success)
-                    throw Error(voucherUpdateResult);
-                validVoucher = true;
+                if (!voucherUpdateResult.success)
+                    throw new Error(voucherUpdateResult);
             } else {
                 throw new CustomError.BadRequestError("Invalid Voucher");
             }
-        } 
+        }
 
-        let cartItems = await CartItem.where({cart_id: cart['id']}).orderBy('book_id').all();
-        
+        let cartItems = await CartItem.where({ cart_id: cart['id'] }).orderBy('book_id').all();
+
         let books = await Book.where({
             id: {
                 operator: 'IN',
@@ -178,25 +175,25 @@ class OrderCustomerController extends BaseController {
             address,
             customer_id: this.body.id
         });
-        if(!orderCreate.success) 
+        if (!orderCreate.success)
             throw new Error(orderCreate.errors);
-        
+
         let orderId = orderCreate.insertedId;
-        for(let i = 0; i < books.length; i++) {
+        for (let i = 0; i < books.length; i++) {
             orderCreate = await OrderItem.create({
                 order_id: orderId,
                 book_id: books[i]['id'],
                 quantity: cartItems[i]['quantity'],
                 unit_price: Number(books[i]['price'])
             });
-            if(!orderCreate.success)
+            if (!orderCreate.success)
                 throw new Error(orderCreate.errors);
         }
-        orderCreate = await CartItem.delete({cart_id: cart['id']});
-        if(!orderCreate.success)
+        orderCreate = await CartItem.delete({ cart_id: cart['id'] });
+        if (!orderCreate.success)
             throw new Error(orderCreate.errors);
 
-        return this.ok("Order created, pending approval");
+        return this.created({ insertedId: orderCreate.insertedId });
     }
 
 }

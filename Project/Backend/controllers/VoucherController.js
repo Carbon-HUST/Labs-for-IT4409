@@ -19,7 +19,7 @@ class VoucherController extends BaseController {
         return this.ok({
             page,
             pageSize: limit,
-            vouchers: returnVouchers,
+            results: returnVouchers,
             totalPage
         });
     }
@@ -35,7 +35,7 @@ class VoucherController extends BaseController {
             throw new CustomError.NotFoundError("Voucher not found");
         }
 
-        return this.ok(voucher);
+        return this.ok({ result: voucher });
     }
 
     async create() {
@@ -76,7 +76,7 @@ class VoucherController extends BaseController {
     async delete() {
         const voucherId = this.params.voucherId;
         if (!voucherId) {
-            return new CustomError.BadRequestError("Voucher's name is missing");
+            throw new CustomError.BadRequestError("Voucher's name is missing");
         }
 
         const result = await Voucher.delete({ id: voucherId });
@@ -91,11 +91,11 @@ class VoucherController extends BaseController {
 
     // Get valid voucher (for client)
     async getVouchers() {
-        const cart = await Cart.where({customer_id: this.body.id}).first();
-        if(!cart)
+        const cart = await Cart.where({ customer_id: this.body.id }).first();
+        if (!cart)
             throw new CustomError.BadRequestError('Cant access cart');
         let total = await cart.getCartTotal();
-        console.log(total);
+        //console.log(total);
         let page = Number(this.query.page) || 1;
         const limit = Number(this.query.limit) || 10;
 
@@ -131,10 +131,10 @@ class VoucherController extends BaseController {
         return this.ok({
             page,
             pageSize: limit,
-            vouchers: returnVouchers,
+            results: returnVouchers,
             totalPage
         });
-        
+
     }
 
 

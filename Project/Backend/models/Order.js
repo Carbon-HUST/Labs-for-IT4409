@@ -4,7 +4,6 @@ const { AttributeType, Validators } = require('../framework/ModelHelpers');
 class Order extends BaseModel {
     setup() {
         this.setTablename("order_");
-        this.setAttribute("payment_id", AttributeType.Integer);
         this.setAttribute("time", AttributeType.DateTime, [Validators.Required, Validators.DateTime]);
         this.setAttribute("status", AttributeType.String, [
             Validators.Required,

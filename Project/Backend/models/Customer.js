@@ -1,9 +1,8 @@
-const pool = require('../config/db.config');
 const { BaseModel } = require('../framework');
 const { AttributeType, Validators } = require('../framework/ModelHelpers');
 
 class Customer extends BaseModel {
-    
+
     setup() {
         this.setTablename('customer');
         this.setAttribute('name', AttributeType.String, [Validators.Required, Validators.MaxLength(255)]);
