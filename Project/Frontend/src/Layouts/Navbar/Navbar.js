@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import "./Navbar.style.scss";
 import Dropdown from "../../Components/Dropdown/Dropdown";
 
@@ -17,9 +18,15 @@ const handleOnClickNavbarToggle = (e) => {
 };
 
 export default function Navbar() {
+	const { isLoggedIn, profile } = useSelector((state) => state.auth);
+	const navigate = useNavigate();
 	const [show, isShow] = useState(false);
 	const handleOnClickShowDropdown = (e) => {
-		isShow(!show);
+		if (isLoggedIn) {
+			isShow(!show);
+		} else {
+			navigate("/auth/login");
+		}
 	};
 	return (
 		<div className='top-navbar'>
@@ -33,7 +40,7 @@ export default function Navbar() {
 						<i className='fa-solid fa-bars' />
 					</div>
 					<div className='navbar-logo'>
-						<a href className='header-logo'>
+						<a href='#javascript' className='header-logo'>
 							<img src='./images/logo.png' alt='' />
 							<div className='logo-title'>
 								<span>Bookstore</span>
@@ -46,7 +53,11 @@ export default function Navbar() {
 					<nav aria-label='breadcrumb'>
 						<ul className='breadcrumb'>
 							<li className='breadcrumb-item'>
-								<a href>Home</a>
+								<a href='#javascript'>Home</a>
+							</li>
+							<li className='breadcrumb-item active' aria-current='page'>
+								<i className='fa-solid fa-angle-right' />
+								Homepage
 							</li>
 							<li className='breadcrumb-item active' aria-current='page'>
 								<i className='fa-solid fa-angle-right' />
@@ -62,7 +73,7 @@ export default function Navbar() {
 							className='search-input'
 							placeholder='Search Here ...'
 						/>
-						<a href className='search-link'>
+						<a href='#javascript' className='search-link'>
 							<i className='fa-solid fa-magnifying-glass' />
 						</a>
 					</form>
@@ -77,7 +88,7 @@ export default function Navbar() {
 				<div className='navbar-collapse' id='navbar-collapse'>
 					<ul className='navbar-list'>
 						<li className='nav-item nav-icon'>
-							<a href className='search-toggle'>
+							<a href='#javascript' className='search-toggle'>
 								<span className='ripple rippleEffect' />
 								<i className='fa-solid fa-bell' />
 								<span className='dots' />
@@ -85,7 +96,7 @@ export default function Navbar() {
 							<div className='dropdown' />
 						</li>
 						<li className='nav-item nav-icon'>
-							<a href className='search-toggle'>
+							<a href='#javascript' className='search-toggle'>
 								<span className='ripple rippleEffect' />
 								<i className='fa-solid fa-envelope' />
 								<span className='dots' />
@@ -93,7 +104,7 @@ export default function Navbar() {
 							<div className='dropdown' />
 						</li>
 						<li className='nav-item nav-icon'>
-							<a href className='search-toggle'>
+							<a href='#javascript' className='search-toggle'>
 								<span className='ripple rippleEffect' />
 								<i className='fa-solid fa-cart-shopping' />
 								<span className='badge'>4</span>
@@ -108,11 +119,18 @@ export default function Navbar() {
 							<Link to={""} id='waves-effect'>
 								<span className='rippleEffect'></span>
 								<img
-									src={window.location.origin + "/images/user/1.jpg"}
+									src={
+										profile
+											? profile.avatar ||
+											  window.location.origin +
+													"/images/user/avatar-default.png"
+											: window.location.origin +
+											  "/images/user/avatar-default.png"
+									}
 									alt=''
 								/>
 								<div className='caption'>
-									<h6>Tiến Trắng</h6>
+									<h6>{profile ? profile.name || "" : ""}</h6>
 								</div>
 							</Link>
 							<Dropdown />

@@ -1,7 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { ProductService } from "../../../Services";
 import "./BooksDescription.style.scss";
 
 export default function BooksDescription() {
+	let params = useParams();
+	const [book, setBook] = useState({});
+	useEffect(() => {
+		async function fetchData() {
+			const res = await ProductService.getBookById(params.id);
+			setBook(res);
+		}
+
+		fetchData();
+	}, [params.id]);
 	return (
 		<div className='content-page'>
 			<div className='container-fluid'>
@@ -21,8 +33,10 @@ export default function BooksDescription() {
 														<a href>
 															<img
 																src={
-																	window.location.origin +
-																	"/images/books/01.jpg"
+																	book.images && book.images.length >= 1
+																		? book.images[0]
+																		: window.location.origin +
+																		  "/images/books/01.jpg"
 																}
 																alt=''
 															/>
@@ -32,8 +46,10 @@ export default function BooksDescription() {
 														<a href>
 															<img
 																src={
-																	window.location.origin +
-																	"/images/books/02.jpg"
+																	book.images && book.images.length >= 2
+																		? book.images[1]
+																		: window.location.origin +
+																		  "/images/books/02.jpg"
 																}
 																alt=''
 															/>
@@ -43,8 +59,10 @@ export default function BooksDescription() {
 														<a href>
 															<img
 																src={
-																	window.location.origin +
-																	"/images/books/03.jpg"
+																	book.images && book.images.length >= 3
+																		? book.images[2]
+																		: window.location.origin +
+																		  "/images/books/03.jpg"
 																}
 																alt=''
 															/>
@@ -56,7 +74,10 @@ export default function BooksDescription() {
 												<a href>
 													<img
 														src={
-															window.location.origin + "/images/books/04.jpg"
+															book.images && book.images.length >= 4
+																? book.images[3]
+																: window.location.origin +
+																  "/images/books/04.jpg"
 														}
 														alt=''
 													/>
@@ -65,12 +86,14 @@ export default function BooksDescription() {
 										</div>
 									</div>
 									<div className='description-wrapper'>
-										<h3>
-											A Casey Christi night books in the raza Dakota Krout
-										</h3>
+										<h3>{book.title}</h3>
 										<div className='description-price'>
-											<span className='description-old-price'>50.000</span>
-											<span className='description-new-price'>25.000</span>
+											<span className='description-old-price'>
+												{book.olPrice || "50.000"}
+											</span>
+											<span className='description-new-price'>
+												{book.price}
+											</span>
 										</div>
 										<div className='description-rating'>
 											<span>
@@ -82,17 +105,22 @@ export default function BooksDescription() {
 											</span>
 										</div>
 										<span className='description-content'>
-											Monterhing in the best book testem ipsum is simply dtest
-											in find in a of the printing and typeseting industry into
-											to end.in find in a of the printing and typeseting
-											industry in find to make it all done into end.
+											{book.description ||
+												"Monterhing in the best book testem ipsum is simply dtestin find in a of the printing and typeseting industry into to end.in find in a of the printing and typeseting industry in find to make it all done into end."}
 										</span>
 										<div className='description-author'>
-											Author: <span>Jhone Steben</span>
+											Author:{" "}
+											{book.authors ? (
+												book.authors.map((item, index) => (
+													<span key={index}>{item}</span>
+												))
+											) : (
+												<span>Jhone Steben</span>
+											)}
 										</div>
 										<div className='description-actions'>
-											<a href>Add to cart</a>
-											<a href>Read Sample</a>
+											<Link to={""}>Add to cart</Link>
+											<Link to={""}>Read Sample</Link>
 										</div>
 										<div className='description-wishlist'>
 											<a href>

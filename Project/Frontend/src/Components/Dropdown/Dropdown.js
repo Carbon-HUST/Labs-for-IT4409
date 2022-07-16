@@ -1,7 +1,14 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import "./Dropdown.style.scss";
+import { logout } from "../../Slices/auth";
 
 export default function Dropdown() {
+	const dispatch = useDispatch();
+	const handleSignOut = () => {
+		dispatch(logout());
+	};
 	return (
 		<div className='sub-dropdown' id='sub-dropdown-user'>
 			<div className='card'>
@@ -10,7 +17,7 @@ export default function Dropdown() {
 						<h5>Hello Barry Tech</h5>
 						<span>Available </span>
 					</div>
-					<a href className='sub-card'>
+					<a href='#javascript' className='sub-card'>
 						<div className='media'>
 							<div className='media-icon'>
 								<i className='fa-solid fa-id-badge' />
@@ -22,9 +29,9 @@ export default function Dropdown() {
 						</div>
 					</a>
 					<div className='card-action-signout'>
-						<a href id='btn-sign-out'>
+						<Link to={""} id='btn-sign-out' onClick={handleSignOut}>
 							Sign out
-						</a>
+						</Link>
 					</div>
 				</div>
 			</div>

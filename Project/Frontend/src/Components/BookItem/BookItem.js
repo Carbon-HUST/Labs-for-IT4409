@@ -1,20 +1,20 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export default function BookItem() {
+export default function BookItem({ id, title, description, price, thumbnail }) {
 	return (
-		<div className='card-item'>
+		<div key={id} className='card-item'>
 			<div className='card-image'>
-				<a href>
-					<img src='./images/books/01.jpg' alt='' />
-				</a>
+				<Link to=''>
+					<img src={thumbnail || "./images/books/01.jpg"} alt='' />
+				</Link>
 				<div className='view-book'>
-					<Link to={"/product/1"}>View Book</Link>
+					<Link to={`/product/${id}`}>View Book</Link>
 				</div>
 			</div>
 			<div className='card-content'>
 				<div className='card-content-header'>
-					<h6>Reading on the world</h6>
+					<h6>{title}</h6>
 					<p>Jhone Steben</p>
 					<div className='rating'>
 						<span>
@@ -28,15 +28,15 @@ export default function BookItem() {
 				</div>
 				<div className='card-content-price'>
 					<span className='old-price'>10.000</span>
-					<h6>5.000</h6>
+					<h6>{price}</h6>
 				</div>
 				<div className='card-content-actions'>
-					<a href>
+					<Link to=''>
 						<i className='fa-solid fa-cart-shopping' />
-					</a>
-					<a href>
+					</Link>
+					<Link to=''>
 						<i className='fa-solid fa-heart' />
-					</a>
+					</Link>
 				</div>
 			</div>
 		</div>

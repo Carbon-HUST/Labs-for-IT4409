@@ -1,5 +1,6 @@
 import axios from "axios";
 import { API } from "../const";
+import authHeader from "./auth-header";
 
 const login = (email, password) => {
 	return axios
@@ -11,6 +12,15 @@ const login = (email, password) => {
 			if (response.data.accessToken) {
 				localStorage.setItem("user", JSON.stringify(response.data));
 			}
+			return response.data;
+		});
+};
+const getProfile = () => {
+	return axios
+		.get(API + "profile", {
+			headers: authHeader(),
+		})
+		.then((response) => {
 			return response.data;
 		});
 };
@@ -35,7 +45,12 @@ const register = (
 	});
 };
 
+const logout = () => {
+	localStorage.removeItem("user");
+};
 export default {
 	login,
 	register,
+	getProfile,
+	logout,
 };
