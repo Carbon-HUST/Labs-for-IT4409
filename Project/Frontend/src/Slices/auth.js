@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import AuthService from "../Services/auth.service";
-import { errorMessage } from "./message";
+import { errorMessage, successMessage } from "./message";
 const user = JSON.parse(localStorage.getItem("user"));
 
 export const login = createAsyncThunk(
@@ -9,7 +9,7 @@ export const login = createAsyncThunk(
 	async ({ email, password }, thunkAPI) => {
 		try {
 			const data = await AuthService.login(email, password);
-			console.log(data);
+			thunkAPI.dispatch(getProfile());
 			return { user: data };
 		} catch (error) {
 			const message =
@@ -48,10 +48,38 @@ export const register = createAsyncThunk(
 		}
 	}
 );
-
+export const getProfile = createAsyncThunk(
+	"user/getProfile",
+	async (thunkAPI) => {
+		try {
+			const response = await AuthService.getProfile();
+			return { profile: response };
+		} catch (error) {
+			const message =
+				(error.response && error.response.data && error.response.data.msg) ||
+				error.message ||
+				error.toString();
+			thunkAPI.dispatch(errorMessage(message));
+			return thunkAPI.rejectWithValue();
+		}
+	}
+);
+export const logout = createAsyncThunk("auth/logout", async (thunkAPI) => {
+	try {
+		await AuthService.logout();
+		//thunkAPI.dispatch(successMessage("Đăng xuất thành công!"));
+	} catch (error) {
+		const message =
+			(error.response && error.response.data && error.response.data.msg) ||
+			error.message ||
+			error.toString();
+		thunkAPI.dispatch(errorMessage(message));
+		return thunkAPI.rejectWithValue();
+	}
+});
 const initialState = user
-	? { isLoggedIn: true, user }
-	: { isLoggedIn: false, user: null };
+	? { isLoggedIn: true, user, profile: null }
+	: { isLoggedIn: false, user: null, profile: null };
 
 const authSlice = createSlice({
 	name: "auth",
@@ -64,6 +92,17 @@ const authSlice = createSlice({
 		[login.rejected]: (state, action) => {
 			state.isLoggedIn = false;
 			state.user = null;
+		},
+		[getProfile.fulfilled]: (state, action) => {
+			state.profile = action.payload.profile;
+		},
+		[getProfile.rejected]: (state, action) => {
+			state.profile = null;
+		},
+		[logout.fulfilled]: (state, action) => {
+			state.isLoggedIn = false;
+			state.user = null;
+			state.profile = null;
 		},
 	},
 });
