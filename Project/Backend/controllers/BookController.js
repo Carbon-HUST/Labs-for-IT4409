@@ -99,13 +99,36 @@ class BookController extends BaseController {
 
 
         for (let i = 0; i < bookResults.length; i++) {
-            let bookauthors = await BookAuthor.where({ book_id: bookResults[i]['id'] }).first();
-            let authors = null;
-            if (bookauthors != null) {
-                authors = await Author.findById(bookauthors['author_id']);
+            let bookauthors = await BookAuthor.where({ book_id: bookResults[i]['id'] }).all();
+            let authorIds = bookauthors.map(e => e['author_id']);
+            let authors = [];
+            if (bookauthors.length > 0) {
+                authors = await Author.where({
+                    id: {
+                        operator: 'IN',
+                        value: authorIds
+                    }
+                }).all();
+                
+                authors = authors.map(e => e['name']);
             }
+            bookResults[i].authors = authors;
 
-            bookResults[i].authors = (authors != null) ? authors['name'] : null;
+            let bookgenres = await BookGenre.where({ book_id: bookResults[i]['id'] }).all();
+            bookgenres = bookgenres.map(e => e['genre_id']);
+            let genres = [];
+            if (bookgenres.length > 0) {
+                genres = await Genre.where({
+                    id: {
+                        operator: 'IN',
+                        value: bookgenres
+                    }
+                }).all();
+
+                genres = genres.map(e => e['name']);
+            }
+            bookResults[i].genres = genres;
+            
         }
 
         let results = bookResults.map(e => {
@@ -115,7 +138,8 @@ class BookController extends BaseController {
                 description: e['description'],
                 thumbnail: e['thumbnail'],
                 price: e['price'],
-                authors: e['authors']
+                authors: e['authors'],
+                genres: e['genres']
             };
         });
 
