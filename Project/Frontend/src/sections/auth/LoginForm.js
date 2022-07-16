@@ -19,11 +19,12 @@ export default function LoginForm() {
 		initialValues: {
 			email: "",
 			password: "",
+			isAdmin: false,
 		},
 		validationSchema: LoginSchema,
 		onSubmit: () => {
-			const { email, password } = formik.values;
-			dispatch(login({ email, password }))
+			const { email, password, isAdmin } = formik.values;
+			dispatch(login({ email, password, isAdmin }))
 				.unwrap()
 				.then(() => {
 					dispatch(successMessage("Đăng nhập thành công!"));
@@ -63,9 +64,18 @@ export default function LoginForm() {
 						onChange={handleChange}
 					/>
 				</div>
-				<a href='#javascript' className='login__forgot'>
-					Forgot password
-				</a>
+				<div className='login__forgot'>
+					<label htmlFor=''>
+						<input
+							type='checkbox'
+							name='isAdmin'
+							id=''
+							value={values.isAdmin}
+							onChange={handleChange}
+						/>
+						Login with admin
+					</label>
+				</div>
 				<a
 					href='#javascript'
 					onClick={handleSubmit}

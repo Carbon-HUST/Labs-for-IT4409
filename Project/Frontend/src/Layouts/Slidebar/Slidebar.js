@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import "./Slidebar.style.scss";
 const handleSidebarOnclick = (e) => {
 	let app = document.getElementsByTagName("body")[0];
@@ -9,6 +10,7 @@ const handleSidebarOnclick = (e) => {
 };
 
 export default function Slidebar() {
+	const { isAdmin } = useSelector((state) => state.auth);
 	return (
 		<div className='sidebar' id='sidebar'>
 			<div className='sidebar-logo'>
@@ -37,7 +39,7 @@ export default function Slidebar() {
 									<i className='fa-solid fa-angle-right' />
 								</a>
 							</li>
-							<li>
+							<li style={{ display: isAdmin ? "block" : "none" }}>
 								<a href='#javascript'>
 									<i className='fa-solid fa-user' />
 									<span>User</span>
