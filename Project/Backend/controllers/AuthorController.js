@@ -18,7 +18,7 @@ class AuthorController extends BaseController {
         return this.ok({
             page,
             pageSize: limit,
-            authors: returnedAuthors,
+            results: returnedAuthors,
             totalPage
         });
     }
@@ -34,7 +34,7 @@ class AuthorController extends BaseController {
             throw new CustomError.NotFoundError("Author not found");
         }
 
-        return this.ok(author);
+        return this.ok({ result: author });
     }
 
     async create() {
@@ -68,7 +68,7 @@ class AuthorController extends BaseController {
     async delete() {
         const authorId = this.params.authorId;
         if (!authorId) {
-            return new CustomError.BadRequestError("Author's id is missing");
+            throw new CustomError.BadRequestError("Author's id is missing");
         }
 
         const result = await Author.delete({ id: authorId });

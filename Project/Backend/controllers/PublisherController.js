@@ -18,7 +18,7 @@ class PublisherController extends BaseController {
         return this.ok({
             page,
             pageSize: limit,
-            publishers: returnPublishers,
+            results: returnPublishers,
             totalPage
         });
     }
@@ -34,7 +34,7 @@ class PublisherController extends BaseController {
             throw new CustomError.NotFoundError("Publisher not found");
         }
 
-        return this.ok(publisher);
+        return this.ok({ result: publisher });
     }
 
     async create() {
@@ -71,7 +71,7 @@ class PublisherController extends BaseController {
     async delete() {
         const publisherId = this.params.publisherId;
         if (!publisherId) {
-            return new CustomError.BadRequestError("Publisher's id is missing");
+            throw new CustomError.BadRequestError("Publisher's id is missing");
         }
 
         const result = await Publisher.delete({ id: publisherId });

@@ -23,7 +23,7 @@ class OrderAdminController extends BaseController {
         return this.ok({
             page,
             pageSize: limit,
-            orders: returnedOrders,
+            results: returnedOrders,
             totalPage
         });
     }
@@ -55,11 +55,11 @@ class OrderAdminController extends BaseController {
         order.items = orderItems;
 
         if (order["voucher_id"] != null) {
-
-        }
-
-        if (order["payment_id"] != null) {
-
+            let voucher = await Voucher.findById(order['voucher_id']);
+            if (voucher) {
+                order['voucher_name'] = voucher['name'];
+                order['voucher_value'] = voucher['value'];
+            }
         }
 
         const customer = await Customer.findById(order["customer_id"]);
@@ -70,7 +70,7 @@ class OrderAdminController extends BaseController {
         order.customer = customer;
         delete order["customer_id"];
 
-        return this.ok(order);
+        return this.ok({ result: order });
     }
 
     async updateStatus() {
@@ -97,27 +97,26 @@ class OrderAdminController extends BaseController {
         if (status === 'CANCELLED') {
             if (order['voucher_id']) {
                 let voucher = await Voucher.findById(order['voucher_id']);
-                if(voucher) {
+                if (voucher) {
                     voucher['stock'] += 1;
                     voucher['min_cart_total'] = Number(voucher['min_cart_total']);
                     await voucher.update();
                 }
             }
 
-            let orderItems = await OrderItem.where({order_id: orderId}).orderBy('book_id').all();
+            let orderItems = await OrderItem.where({ order_id: orderId }).orderBy('book_id').all();
             let bookIds = orderItems.map(e => e['book_id']);
-    
+
             let books = await Book.where({
                 id: {
                     operator: 'IN',
                     value: bookIds
                 }
             }).all();
-            
-            for(let i = 0; i < books.length; i++)
-            {
-               books[i]['stock'] += orderItems[i]['quantity'];
-               await books[i].update();
+
+            for (let i = 0; i < books.length; i++) {
+                books[i]['stock'] += orderItems[i]['quantity'];
+                await books[i].update();
             }
         }
 
@@ -134,30 +133,30 @@ class OrderAdminController extends BaseController {
     async getRevenueByTimeRange() {
         let startTime = this.body.startTime;
         let endTime = this.body.endTime;
-        
+
         let unixEnd = new Date(endTime);
         let unixStart = new Date(startTime);
-        if(!startTime || !endTime || Number.isNaN(unixEnd) || Number.isNaN(unixStart) || (unixEnd < unixStart))
+        if (!startTime || !endTime || Number.isNaN(unixEnd) || Number.isNaN(unixStart) || (unixEnd < unixStart))
             throw new CustomError.BadRequestError("Invalid time range");
-        
+
         let orders = await Order.where({
             time: {
                 operator: 'BETWEEN',
                 value: [startTime, endTime]
-            }, 
+            },
             status: "APPROVED"
         }).orderBy('time').all();
-        
-        console.log(orders)
-        console.log(orders[0]['time'].getMonth());
+
+        //console.log(orders)
+        //console.log(orders[0]['time'].getMonth());
         let monthlyTotal = 0;
         let totalPerMonth = [];
-        
+
         let iterDate = unixStart;
-        for(let i = 0; i < orders.length; i++) {
+        for (let i = 0; i < orders.length; i++) {
             let orderTime = new Date(orders[i]['time']);
 
-            if(iterDate.getMonth() === orderTime.getMonth()) {
+            if (iterDate.getMonth() === orderTime.getMonth()) {
                 monthlyTotal += Number(orders[i]['total']);
             } else {
                 totalPerMonth.push({
@@ -169,7 +168,7 @@ class OrderAdminController extends BaseController {
                 iterDate.setMonth(iterDate.getMonth() + 1);
                 i--;
             }
-            
+
         }
         totalPerMonth.push({
             year: iterDate.getFullYear(),
@@ -177,7 +176,7 @@ class OrderAdminController extends BaseController {
             total: monthlyTotal
         });
         iterDate.setDate(1);
-        while(iterDate <= unixEnd) {
+        while (iterDate <= unixEnd) {
             totalPerMonth.push({
                 year: iterDate.getFullYear(),
                 month: iterDate.getMonth() + 1,
@@ -185,41 +184,39 @@ class OrderAdminController extends BaseController {
             });
             iterDate.setMonth(iterDate.getMonth() + 1);
         }
-        
-
 
         let total = orders.reduce((acc, curr) => acc + Number(curr['total']), 0)
-        
+
         return this.ok({
             total,
             numberOfOrder: orders.length,
             monthlyTotal: totalPerMonth
-        }); 
+        });
     }
 
     // get total revenue or yearly revenue
     async getRevenue() {
         let year = this.query.year;
-        const orders = await Order.where({status: 'APPROVED'}).all();
-        if(!year) {
+        const orders = await Order.where({ status: 'APPROVED' }).all();
+        if (!year) {
             let totalRevenue = orders.reduce((acc, curr) => acc + Number(curr['total']), 0);
             return this.ok({
-                totalRevenue
+                revenue: totalRevenue
             });
         }
 
         let yearlyRevenue = orders.reduce(
-            function(acc, curr) {
-                if(curr['time'].getFullYear() === Number(year))
+            function (acc, curr) {
+                if (curr['time'].getFullYear() === Number(year))
                     acc += Number(curr['total']);
                 return acc;
             }, 0);
-        
+
         return this.ok({
             year,
             revenue: yearlyRevenue
         })
-        
+
     }
 
 }

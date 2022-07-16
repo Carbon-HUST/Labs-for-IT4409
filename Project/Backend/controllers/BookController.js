@@ -67,7 +67,7 @@ class BookController extends BaseController {
             price: book['price'],
             number_of_page: book['number_of_page'],
             thumbnail: book['thumbnail'],
-            images: images.map(elem => { return {id: elem['id'], url: elem['image_url']} })
+            images: images.map(elem => { return { id: elem['id'], url: elem['image_url'] } })
         }
 
         return this.ok({ result });
@@ -87,7 +87,7 @@ class BookController extends BaseController {
         const offset = (page - 1) * limit;
 
         let bookResults = books.slice(offset, offset + limit);
-        
+
         // let bookIds = bookResults.map(e => e['id']);
         // let bookauthors = await BookAuthor.where({
         //     book_id: {
@@ -95,10 +95,10 @@ class BookController extends BaseController {
         //         value: bookIds
         //     }
         // }).orderBy('book_id').all();
-        
 
 
-        for(let i = 0; i < bookResults.length; i++) {
+
+        for (let i = 0; i < bookResults.length; i++) {
             let bookauthors = await BookAuthor.where({ book_id: bookResults[i]['id'] }).first();
             let authors = null;
             if (bookauthors != null) {
@@ -133,66 +133,87 @@ class BookController extends BaseController {
         let page = this.query.page || 1;
         const limit = parseInt(this.query.limit) || 10;
 
-        const genreIds = this.body.genres || [];
-        const authorIds = this.body.authors || [];
+        const genreIds = this.body.genres || null;
+        const authorIds = this.body.authors || null;
 
-        let filterByTitle = await Book.where({
+        let filterByAuthor = [];
+        if (authorIds != null) {
+            console.log('book_author');
+            filterByAuthor = await BookAuthor.where({ author_id: authorIds }).all();
+        }
+
+        let filterByGenre = [];
+        if (genreIds != null) {
+            console.log('book_genre');
+            filterByGenre = await BookGenre.where({ genre_id: genreIds }).all();
+        }
+
+        let filterIds = [];
+        filterIds = filterIds.concat(filterByAuthor.map(e => { return e['book_id']; }));
+        filterIds = filterIds.concat(filterByGenre.map(e => { return e['book_id']; }));
+        filterIds = filterIds.filter((e, i, filterIds) => filterIds.indexOf(e) !== i);
+
+        if (filterIds.length === 0) {
+            return this.ok({
+                page,
+                pageSize: limit,
+                totalPage: 0,
+                results: []
+            });
+        }
+
+        let filterBooks = [];
+        filterBooks = await Book.where({
+            id: {
+                operator: 'IN',
+                value: filterIds
+            },
             title: {
                 operator: 'LIKE',
                 value: `%${searchText}%`
             }
         }).all();
 
-        let filterByAuthor = [];
-        if (authorIds.length > 0) {
-            filterByAuthor = await BookAuthor.where({
-                author_id: {
-                    operator: 'IN',
-                    value: authorIds
-                }
-            }).all();
-        }
-
-        let filterByGenre = [];
-        if (genreIds.length > 0) {
-            filterByGenre = await BookGenre.where({
-                genre_id: {
-                    operator: 'IN',
-                    value: genreIds
-                }
-            }).all();
-        }
-
-        if (filterByTitle.length === 0)
-            return this.ok({ result: filterByTitle });
-
-        let results = [];
-
-        let filterIds = [];
-        filterIds = filterIds.concat(filterByAuthor.map(e => { return e['book_id']; }));
-        filterIds = filterIds.concat(filterByGenre.map(e => { return e['book_id']; }));
-        filterIds = new Set(filterIds);
-
-        for (let i = 0; i < filterByTitle.length; i++) {
-            if (filterIds.has(filterByTitle[i]['id'])) {
-                results.push({
-                    id: filterByTitle[i]['id'],
-                    title: filterByTitle[i]['title'],
-                    description: filterByTitle[i]['description'],
-                    thumbnail: filterByTitle[i]['thumbnail']
-                })
+        if (filterBooks.length === 0) {
+            return {
+                page,
+                pageSize: limit,
+                totalPage: 0,
+                results: []
             }
         }
 
-        if (authorIds.length === 0 && genreIds.length === 0) {
-            results = filterByTitle.map(e => {
-                return {
+        let results = [];
+
+        let author = null;
+        if (authorIds != null) {
+            author = await Author.findById(authorIds);
+        }
+        if (author != null) {
+            filterBooks.forEach(e => {
+                results.push({
                     id: e['id'],
                     title: e['title'],
-                    description: e['description'],
-                    thumbnail: e['thumbnail']
-                }
+                    thumbnail: e['thumbnail'],
+                    price: e['price'],
+                    authors: author['name']
+                })
             });
+        } else {
+            for (let book of filterBooks) {
+                let bookauthors = await BookAuthor.where({ book_id: book['id'] }).first();
+                let authors = null;
+                if (bookauthors != null) {
+                    authors = await Author.findById(bookauthors['author_id']);
+                }
+                results.push({
+                    id: book['id'],
+                    title: book['title'],
+                    thumbnail: book['thumbnail'],
+                    price: book['price'],
+                    authors: (authors != null) ? authors['name'] : null
+                })
+            }
         }
 
         const totalPage = Math.floor(results.length / limit) + ((results.length % limit == 0) ? 0 : 1);
@@ -202,11 +223,12 @@ class BookController extends BaseController {
         const returnResults = results.slice(offset, offset + limit);
 
         return this.ok({
-            page: page,
+            page,
             pageSize: limit,
-            totalPage: totalPage,
-            returnResults
+            totalPage,
+            results: returnResults
         });
+
     }
 
 
@@ -267,13 +289,13 @@ class BookController extends BaseController {
 
         return this.ok({
             success: true,
-            id: book.insertedId
+            insertedId: book.insertedId
         });
     }
 
     async updateBookThumbnail() {
-        
-        if(this.body.secure_url)
+
+        if (this.body.secure_url)
             return this.ok({
                 thumbnailSrc: this.body.secure_url
             });
@@ -284,7 +306,7 @@ class BookController extends BaseController {
         const thumbnailPublicId = thumbnailUrl.slice(thumbnailUrl.indexOf('webtech'), thumbnailUrl.lastIndexOf('.'));
         await cloudinary.uploader.destroy(thumbnailPublicId);
 
-        if(!this.files[0]) {
+        if (!this.files[0]) {
             const thumbnailUpdate = await Book.update({ id: this.params.id }, { thumbnail: null });
             if (!thumbnailUpdate.success)
                 throw new Error(thumbnailUpdate.errors);
@@ -326,7 +348,7 @@ class BookController extends BaseController {
         let authors = this.body.authors || [];
         let genres = this.body.genres || [];
 
-        console.log(authors);
+        //console.log(authors);
 
         const book = await Book.findById(this.params.id);
         if (!book)
@@ -335,14 +357,14 @@ class BookController extends BaseController {
         delete this.body.id;
         delete this.body.authors;
         delete this.body.genres;
-        console.log(this.body);
+        //console.log(this.body);
 
         let bookUpdateResult = await Book.update({ id: this.params.id }, this.body);
         if (bookUpdateResult.success) {
             if (authors.length > 0) {
                 authors = new Set(authors);
                 authors = [...authors];
-                console.log(authors);
+                //console.log(authors);
                 bookUpdateResult = await BookAuthor.delete({ book_id: this.params.id });
                 if (bookUpdateResult.success || typeof (bookUpdateResult.errors) === 'string') {
                     for (let i = 0; i < authors.length; i++) {

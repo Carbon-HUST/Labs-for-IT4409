@@ -18,7 +18,7 @@ class GenreController extends BaseController {
         return this.ok({
             page,
             pageSize: limit,
-            genres: returnGenres,
+            results: returnGenres,
             totalPage
         });
     }
@@ -34,7 +34,7 @@ class GenreController extends BaseController {
             throw new CustomError.NotFoundError("Genre not found");
         }
 
-        return this.ok(genre);
+        return this.ok({ result: genre });
     }
 
     async create() {
@@ -67,7 +67,7 @@ class GenreController extends BaseController {
     async delete() {
         const genreId = this.params.genreId;
         if (!genreId) {
-            return new CustomError.BadRequestError("Genre's name is missing");
+            throw new CustomError.BadRequestError("Genre's name is missing");
         }
 
         const result = await Genre.delete({ id: genreId });

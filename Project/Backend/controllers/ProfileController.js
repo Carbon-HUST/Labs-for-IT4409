@@ -9,15 +9,15 @@ const fs = require('fs');
 class ProfileController extends BaseController {
     async getProfile() {
         const id = this.body.id;
-        console.log(id);
+        //console.log(id);
         if (!id || id < 0) {
             throw new CustomError.BadRequestError("Id is invalid");
         }
         const customer = await Customer.findById(id);
         if (!customer) {
-            return new CustomError.NotFoundError("Customer not found");
+            throw new CustomError.NotFoundError("Customer not found");
         }
-        return this.ok(customer);
+        return this.ok({ result: customer });
     }
 
     async updateProfile() {
@@ -72,7 +72,7 @@ class ProfileController extends BaseController {
     }
 
     async updateAvatar() {
-        if(this.body.secure_url) {
+        if (this.body.secure_url) {
             return this.ok({
                 avatarSrc: this.body.secure_url
             });
@@ -80,11 +80,11 @@ class ProfileController extends BaseController {
 
         const customer = await Customer.findById(this.body.id);
         const avatarUrl = customer["avatar"];
-    
+
         const avatarPublicId = avatarUrl.slice(avatarUrl.indexOf('webtech'), avatarUrl.lastIndexOf('.'));
         await cloudinary.uploader.destroy(avatarPublicId);
 
-        if(!this.files[0])
+        if (!this.files[0])
             return this.noContent();
 
         const avatar = this.files[0];
@@ -93,7 +93,7 @@ class ProfileController extends BaseController {
         }
 
         const newFilePath = path.join(__dirname, '..', 'framework', 'upload', avatar.file.newFilename);
-        console.log(newFilePath);
+        //console.log(newFilePath);
         let result = null;
         try {
             result = await cloudinary.uploader.upload(
@@ -104,7 +104,7 @@ class ProfileController extends BaseController {
                 }
             );
         } catch (err) {
-            console.log(err);
+            //console.log(err);
             throw err;
         }
 
