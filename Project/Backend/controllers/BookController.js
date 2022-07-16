@@ -151,7 +151,9 @@ class BookController extends BaseController {
         let filterIds = [];
         filterIds = filterIds.concat(filterByAuthor.map(e => { return e['book_id']; }));
         filterIds = filterIds.concat(filterByGenre.map(e => { return e['book_id']; }));
-        filterIds = filterIds.filter((e, i, filterIds) => filterIds.indexOf(e) !== i);
+        if (authorIds != null && genreIds != null) {
+            filterIds = filterIds.filter((e, i, filterIds) => filterIds.indexOf(e) !== i);
+        }
 
         if (filterIds.length === 0) {
             return this.ok({
