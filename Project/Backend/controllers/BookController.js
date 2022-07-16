@@ -86,13 +86,36 @@ class BookController extends BaseController {
         if (page < 0 || page > totalPage) page = 1;
         const offset = (page - 1) * limit;
 
-        let results = books.slice(offset, offset + limit).map(e => {
+        let bookResults = books.slice(offset, offset + limit);
+        
+        // let bookIds = bookResults.map(e => e['id']);
+        // let bookauthors = await BookAuthor.where({
+        //     book_id: {
+        //         operator: 'IN',
+        //         value: bookIds
+        //     }
+        // }).orderBy('book_id').all();
+        
+
+
+        for(let i = 0; i < bookResults.length; i++) {
+            let bookauthors = await BookAuthor.where({ book_id: bookResults[i]['id'] }).first();
+            let authors = null;
+            if (bookauthors != null) {
+                authors = await Author.findById(bookauthors['author_id']);
+            }
+
+            bookResults[i].authors = (authors != null) ? authors['name'] : null;
+        }
+
+        let results = bookResults.map(e => {
             return {
                 id: e['id'],
                 title: e['title'],
                 description: e['description'],
                 thumbnail: e['thumbnail'],
-                price: e['price']
+                price: e['price'],
+                authors: e['authors']
             };
         });
 
