@@ -60,9 +60,22 @@ class BookController extends BaseController {
             title: book['title'],
             description: book['description'],
             edition: book['edition'],
-            authors: authors.map(elem => { return elem['name'] }),
-            genres: genres.map(elem => { return elem['name'] }),
-            publisher: publisher['name'],
+            authors: authors.map(elem => {
+                return {
+                    id: elem['id'],
+                    name: elem['name']
+                }
+            }),
+            genres: genres.map(elem => {
+                return {
+                    id: elem['id'],
+                    name: elem['name']
+                }
+            }),
+            publisher: {
+                id: publisher['id'],
+                name: publisher['name']
+            },
             stock: book['stock'],
             price: book['price'],
             number_of_page: book['number_of_page'],
@@ -109,7 +122,7 @@ class BookController extends BaseController {
                         value: authorIds
                     }
                 }).all();
-                
+
                 authors = authors.map(e => e['name']);
             }
             bookResults[i].authors = authors;
@@ -128,7 +141,7 @@ class BookController extends BaseController {
                 genres = genres.map(e => e['name']);
             }
             bookResults[i].genres = genres;
-            
+
         }
 
         let results = bookResults.map(e => {
