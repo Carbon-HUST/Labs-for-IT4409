@@ -73,7 +73,7 @@ class Router {
         reqPath = decodeURIComponent(reqPath);
         const routePathSplitted = routePath.split('/');
         const reqPathSplitted = reqPath.split('/');
-        console.log(routePathSplitted, reqPathSplitted);
+        //console.log(routePathSplitted, reqPathSplitted);
         if (routePathSplitted.length !== reqPathSplitted.length) {
             return null;
         }
