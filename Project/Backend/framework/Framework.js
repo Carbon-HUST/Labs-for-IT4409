@@ -92,6 +92,8 @@ class Framework {
     }
 
     async _resolveResponse(req, res) {
+        if (req.controller.done)
+            return;
         const requestTime = new Date().getTime();
         // Get name of controller, action, local middlewares
         const resolveData = req.resolveData = this._router.resolve(req.method, req.controller.path);
@@ -123,6 +125,7 @@ class Framework {
         req.controller.params = { ...req.controller.params, ...resolveData.params };
         try {
             await controller.run(resolveData.action, req.controller); // data: params, query, body
+            req.controller.done = true;
         } catch (err) {
             ErrorHandler(req, res, null, err);
             return;
