@@ -26,7 +26,7 @@ class AuthController extends BaseController {
             throw new CustomError.BadRequestError("Password and confirm password must match");
         }
 
-        const registeredCustomer = await Customer.where({email}).all();
+        const registeredCustomer = await Customer.where({ email }).all();
         if (registeredCustomer.length > 0) {
             throw new CustomError.BadRequestError("Email is already registered");
         }
@@ -37,17 +37,17 @@ class AuthController extends BaseController {
         } = await hashPassword(password);
 
         try {
-            const customer = await Customer.create({name: username, email, password: hashedPassword, phone, gender, dob});
-            
-            if(customer.success && customer.insertedId) {
-                const cart = await Cart.create({customer_id: customer.insertedId});
-                if(!cart.success)
+            const customer = await Customer.create({ name: username, email, password: hashedPassword, phone, gender, dob });
+
+            if (customer.success && customer.insertedId) {
+                const cart = await Cart.create({ customer_id: customer.insertedId });
+                if (!cart.success)
                     throw new Error("Register failed!");
             } else {
-                if(customer.success === false)
+                if (customer.success === false)
                     throw new CustomError.BadRequestError(customer.errors);
             }
-            
+
             return this.ok({
                 success: true,
                 id: customer.insertedId,
@@ -63,9 +63,9 @@ class AuthController extends BaseController {
         if (!email || !password) {
             throw new CustomError.BadRequestError("Not enough information provided");
         }
-        
 
-        const customer = await Customer.where({email}).first();
+
+        const customer = await Customer.where({ email }).first();
         if (!customer) {
             throw new CustomError.BadRequestError("Invalid credentials");
         }
@@ -77,6 +77,7 @@ class AuthController extends BaseController {
         const token = jwt.sign({
             id: customer["id"],
             name: customer["name"],
+            role: "customer"
         }, process.env.JWT_SECRET, {
             expiresIn: process.env.JWT_LIFETIME
         });
@@ -86,7 +87,7 @@ class AuthController extends BaseController {
             accessToken: token
         });
     }
-    
+
 }
 
 module.exports = AuthController;
