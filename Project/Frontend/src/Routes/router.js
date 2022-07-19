@@ -2,6 +2,7 @@ import { Navigate, useRoutes } from "react-router-dom";
 import Auth from "../Pages/Auth/Auth";
 import Homepage from "../Pages/Home/Homepage";
 import Page404 from "../Pages/Page404/Page404";
+import Profile from "../Pages/Profile/Profile";
 import Author from "../sections/admin/author/Author";
 import EditAuthor from "../sections/admin/author/EditAuthor";
 import BooksCategory from "../sections/admin/books/BooksCategory";
@@ -13,6 +14,7 @@ import RegisterForm from "../sections/auth/RegisterForm";
 import BooksDescription from "../sections/products/BooksDescription/BooksDescription";
 import BrowseBook from "../sections/products/BrowseBook/BrowseBook";
 import PrivateRoute from "./Private/PrivateRoute";
+import PrivateUserRouter from "./Private/PrivateUserRoute";
 
 export default function Router() {
 	return useRoutes([
@@ -22,6 +24,14 @@ export default function Router() {
 			children: [
 				{ path: "", element: <BrowseBook /> },
 				{ path: "/product/:id", element: <BooksDescription /> },
+				{
+					path: "/user",
+					element: (
+						<PrivateUserRouter>
+							<Profile />
+						</PrivateUserRouter>
+					),
+				},
 				{ path: "*", element: <Navigate to='/404' /> },
 			],
 		},

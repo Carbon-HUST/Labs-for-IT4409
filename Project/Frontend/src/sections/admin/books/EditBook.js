@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AdminService, ProductService } from "../../../Services";
 import * as Yup from "yup";
-import { useFormik, FormikProvider } from "formik";
+import { useFormik } from "formik";
 import "./EditBook.style.scss";
 import { successMessage } from "../../../Slices/message";
 import { useNavigate, useParams } from "react-router-dom";
@@ -83,7 +83,7 @@ export default function EditBook() {
 		},
 	});
 
-	const { values, handleChange, handleSubmit, errors } = formik;
+	const { values, handleChange, handleSubmit } = formik;
 	const handleBack = () => {
 		navigate("/admin/books");
 	};
