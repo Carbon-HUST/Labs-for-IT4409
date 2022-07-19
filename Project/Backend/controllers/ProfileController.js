@@ -92,7 +92,7 @@ class ProfileController extends BaseController {
             throw new CustomError.BadRequestError("Avatar must be an image");
         }
 
-        const newFilePath = path.join(__dirname, '..', 'framework', 'upload', avatar.file.newFilename);
+        const newFilePath = path.join(__dirname, '..', '..', '..', '..', 'tmp', avatar.file.newFilename);
         //console.log(newFilePath);
         let result = null;
         try {

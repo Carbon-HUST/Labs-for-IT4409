@@ -357,7 +357,7 @@ class BookController extends BaseController {
             throw new CustomError.BadRequestError("Thumbnail must be an image");
         }
 
-        const newFilePath = path.join(__dirname, '..', 'framework', 'upload', thumbnail.file.newFilename);
+        const newFilePath = path.join(__dirname, '..', '..', '..', 'tmp', thumbnail.file.newFilename);
         let result = null;
 
 
@@ -510,7 +510,7 @@ class BookController extends BaseController {
         const newImageNumber = Math.min(newImageNumberAllow, this.files.length);
         const newImage = [];
         for (let i = 0; i < newImageNumber; ++i) {
-            const newFilePath = path.join(__dirname, '..', 'framework', 'upload', this.files[i].file.newFilename);
+            const newFilePath = path.join(__dirname, '..', '..', '..', 'tmp', this.files[i].file.newFilename);
             const result = await cloudinary.uploader.upload(
                 newFilePath,
                 {
