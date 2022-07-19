@@ -64,6 +64,12 @@ export default function Slidebar() {
 										Category Page
 									</Link>
 								</li>
+								<li>
+									<Link to={"/user"}>
+										<i className='ri-profile-line'></i>
+										Profile Page
+									</Link>
+								</li>
 							</ul>
 						</li>
 						{isAdmin ? (

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import "./Dropdown.style.scss";
 import { logout } from "../../Slices/auth";
 
 export default function Dropdown() {
 	const dispatch = useDispatch();
+	const { isAdmin, profile } = useSelector((state) => state.auth);
 	const handleSignOut = () => {
 		dispatch(logout());
 	};
@@ -14,20 +15,22 @@ export default function Dropdown() {
 			<div className='card'>
 				<div className='card-body'>
 					<div className='card-header'>
-						<h5>Hello Barry Tech</h5>
+						{profile ? <h5>Hello, {profile.name}</h5> : <h5>Hello, Admin</h5>}
 						<span>Available </span>
 					</div>
-					<a href='#javascript' className='sub-card'>
-						<div className='media'>
-							<div className='media-icon'>
-								<i className='fa-solid fa-id-badge' />
+					{isAdmin || (
+						<Link to={"user"} className='sub-card'>
+							<div className='media'>
+								<div className='media-icon'>
+									<i className='fa-solid fa-id-badge' />
+								</div>
+								<div className='media-body'>
+									<h6>My Profile</h6>
+									<p>View personal profile details.</p>
+								</div>
 							</div>
-							<div className='media-body'>
-								<h6>My Profile</h6>
-								<p>View personal profile details.</p>
-							</div>
-						</div>
-					</a>
+						</Link>
+					)}
 					<div className='card-action-signout'>
 						<Link to={""} id='btn-sign-out' onClick={handleSignOut}>
 							Sign out
