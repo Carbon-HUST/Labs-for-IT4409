@@ -5,10 +5,10 @@ import { useEffect } from "react";
 import { getProfile } from "./Slices/auth";
 
 function App() {
-	const { isLoggedIn } = useSelector((state) => state.auth);
+	const { isLoggedIn, isAdmin } = useSelector((state) => state.auth);
 	const dispatch = useDispatch();
 	useEffect(() => {
-		if (isLoggedIn) {
+		if (isLoggedIn && !isAdmin) {
 			dispatch(getProfile());
 		}
 	}, []);

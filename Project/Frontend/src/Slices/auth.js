@@ -4,6 +4,7 @@ import { AdminService } from "../Services";
 import AuthService from "../Services/auth.service";
 import { errorMessage, successMessage } from "./message";
 const user = JSON.parse(localStorage.getItem("user"));
+const isAdminL = JSON.parse(localStorage.getItem("admin"));
 
 export const login = createAsyncThunk(
 	"user/login",
@@ -84,8 +85,18 @@ export const logout = createAsyncThunk("auth/logout", async (thunkAPI) => {
 	}
 });
 const initialState = user
-	? { isLoggedIn: true, user, profile: null, isAdmin: false }
-	: { isLoggedIn: false, user: null, profile: null, isAdmin: false };
+	? {
+			isLoggedIn: true,
+			user,
+			profile: null,
+			isAdmin: isAdminL ? isAdminL : false,
+	  }
+	: {
+			isLoggedIn: false,
+			user: null,
+			profile: null,
+			isAdmin: false,
+	  };
 
 const authSlice = createSlice({
 	name: "auth",

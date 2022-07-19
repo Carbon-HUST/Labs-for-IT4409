@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import "./Navbar.style.scss";
 import Dropdown from "../../Components/Dropdown/Dropdown";
 
@@ -16,11 +16,37 @@ const handleOnClickNavbarToggle = (e) => {
 		collapse.classList.toggle("show");
 	}
 };
+const routes = [
+	{ path: "/", element: [{ name: "Home", link: "/" }] },
+	{
+		path: "/product",
+		element: [
+			{ name: "Home", link: "/" },
+			{ name: "Product", link: "/product" },
+		],
+	},
+	{
+		path: "/admin",
+		element: [
+			{ name: "Home", link: "/" },
+			{ name: "Admin", link: "/admin" },
+		],
+	},
+	{
+		path: "/admin/books",
+		element: [
+			{ name: "Home", link: "/" },
+			{ name: "Admin", link: "/admin" },
+			{ name: "Book", link: "/admin/books" },
+		],
+	},
+];
 
 export default function Navbar() {
 	const { isLoggedIn, profile } = useSelector((state) => state.auth);
 	const navigate = useNavigate();
 	const [show, isShow] = useState(false);
+	const [link, setLink] = useState([]);
 	const handleOnClickShowDropdown = (e) => {
 		if (isLoggedIn) {
 			isShow(!show);
@@ -28,6 +54,21 @@ export default function Navbar() {
 			navigate("/auth/login");
 		}
 	};
+	useEffect(() => {
+		const href = window.location.href;
+		let find = {
+			element: [],
+		};
+		routes.map((item) => {
+			if (href.lastIndexOf(item.path) !== -1) {
+				if (item.element.length > find.element.length) {
+					find = item;
+				}
+			}
+		});
+		setLink(find.element);
+	});
+
 	return (
 		<div className='top-navbar'>
 			<nav className='navbar'>
@@ -52,17 +93,35 @@ export default function Navbar() {
 					<h5>Shop</h5>
 					<nav aria-label='breadcrumb'>
 						<ul className='breadcrumb'>
-							<li className='breadcrumb-item'>
-								<a href='#javascript'>Home</a>
-							</li>
-							<li className='breadcrumb-item active' aria-current='page'>
-								<i className='fa-solid fa-angle-right' />
-								Homepage
-							</li>
-							<li className='breadcrumb-item active' aria-current='page'>
-								<i className='fa-solid fa-angle-right' />
-								Homepage
-							</li>
+							{link &&
+								link.map((item, index) =>
+									index === 0 ? (
+										<li key={index} className='breadcrumb-item'>
+											<Link to={item.link}>{item.name}</Link>
+										</li>
+									) : (
+										<li
+											key={index}
+											className='breadcrumb-item active'
+											aria-current='page'
+										>
+											<i className='fa-solid fa-angle-right' />
+											{item.name}
+										</li>
+									)
+								)}
+							{/* {link.map((item, index) =>
+								index === 0 ? (
+									<li className='breadcrumb-item'>
+										<Link to={item.link}>{item.name}</Link>
+									</li>
+								) : (
+									<li className='breadcrumb-item active' aria-current='page'>
+										<i className='fa-solid fa-angle-right' />
+										{item.link}
+									</li>
+								)
+							)} */}
 						</ul>
 					</nav>
 				</div>

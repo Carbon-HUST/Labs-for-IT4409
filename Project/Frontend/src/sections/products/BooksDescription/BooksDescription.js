@@ -30,7 +30,7 @@ export default function BooksDescription() {
 											<div className='sub-image'>
 												<ul className='sub-list-image'>
 													<li className='sub-list-item'>
-														<a href>
+														<Link to={""}>
 															<img
 																src={
 																	book.images && book.images.length >= 1
@@ -40,10 +40,10 @@ export default function BooksDescription() {
 																}
 																alt=''
 															/>
-														</a>
+														</Link>
 													</li>
 													<li className='sub-list-item'>
-														<a href>
+														<Link to={""}>
 															<img
 																src={
 																	book.images && book.images.length >= 2
@@ -53,10 +53,10 @@ export default function BooksDescription() {
 																}
 																alt=''
 															/>
-														</a>
+														</Link>
 													</li>
 													<li className='sub-list-item'>
-														<a href>
+														<Link to={""}>
 															<img
 																src={
 																	book.images && book.images.length >= 3
@@ -66,12 +66,12 @@ export default function BooksDescription() {
 																}
 																alt=''
 															/>
-														</a>
+														</Link>
 													</li>
 												</ul>
 											</div>
 											<div className='main-image'>
-												<a href>
+												<Link to={""}>
 													<img
 														src={
 															book.images && book.images.length >= 4
@@ -81,7 +81,7 @@ export default function BooksDescription() {
 														}
 														alt=''
 													/>
-												</a>
+												</Link>
 											</div>
 										</div>
 									</div>
@@ -112,7 +112,7 @@ export default function BooksDescription() {
 											Author:{" "}
 											{book.authors ? (
 												book.authors.map((item, index) => (
-													<span key={index}>{item}</span>
+													<span key={index}>{item.name}</span>
 												))
 											) : (
 												<span>Jhone Steben</span>
@@ -123,35 +123,35 @@ export default function BooksDescription() {
 											<Link to={""}>Read Sample</Link>
 										</div>
 										<div className='description-wishlist'>
-											<a href>
+											<Link to={""}>
 												<span className='wishlist-icon'>
 													<i className='fa-solid fa-heart' />
 												</span>
 												<span>Add to wishlist</span>
-											</a>
+											</Link>
 										</div>
 										<div className='description-social'>
 											<h5>Share:</h5>
 											<ul>
 												<li>
-													<a href className='social-icon fb'>
+													<Link to={""} className='social-icon fb'>
 														<i className='fa-brands fa-facebook-f' />
-													</a>
+													</Link>
 												</li>
 												<li>
-													<a href className='social-icon twitter'>
+													<Link to={""} className='social-icon twitter'>
 														<i className='fa-brands fa-twitter' />
-													</a>
+													</Link>
 												</li>
 												<li>
-													<a href className='social-icon yt'>
+													<Link to={""} className='social-icon yt'>
 														<i className='fa-brands fa-youtube' />
-													</a>
+													</Link>
 												</li>
 												<li>
-													<a href className='social-icon pinterest'>
+													<Link to={""} className='social-icon pinterest'>
 														<i className='fa-brands fa-pinterest-p' />
-													</a>
+													</Link>
 												</li>
 											</ul>
 										</div>
