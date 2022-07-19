@@ -342,8 +342,10 @@ class BookController extends BaseController {
         const book = await Book.findById(this.params.id);
         const thumbnailUrl = book['thumbnail'];
 
-        const thumbnailPublicId = thumbnailUrl.slice(thumbnailUrl.indexOf('webtech'), thumbnailUrl.lastIndexOf('.'));
-        await cloudinary.uploader.destroy(thumbnailPublicId);
+        if (thumbnailUrl != null) {
+            const thumbnailPublicId = thumbnailUrl.slice(thumbnailUrl.indexOf('webtech'), thumbnailUrl.lastIndexOf('.'));
+            await cloudinary.uploader.destroy(thumbnailPublicId);
+        }
 
         if (!this.files[0]) {
             const thumbnailUpdate = await Book.update({ id: this.params.id }, { thumbnail: null });

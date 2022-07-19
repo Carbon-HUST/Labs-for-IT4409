@@ -81,8 +81,10 @@ class ProfileController extends BaseController {
         const customer = await Customer.findById(this.body.id);
         const avatarUrl = customer["avatar"];
 
-        const avatarPublicId = avatarUrl.slice(avatarUrl.indexOf('webtech'), avatarUrl.lastIndexOf('.'));
-        await cloudinary.uploader.destroy(avatarPublicId);
+        if (avatarUrl != null) {
+            const avatarPublicId = avatarUrl.slice(avatarUrl.indexOf('webtech'), avatarUrl.lastIndexOf('.'));
+            await cloudinary.uploader.destroy(avatarPublicId);
+        }
 
         if (!this.files[0])
             return this.noContent();
