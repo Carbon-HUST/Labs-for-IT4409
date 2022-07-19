@@ -11,6 +11,7 @@ const login = (email, password) => {
 		.then((response) => {
 			if (response.data.accessToken) {
 				localStorage.setItem("user", JSON.stringify(response.data));
+				localStorage.setItem("admin", false);
 			}
 			return response.data;
 		});
@@ -21,7 +22,9 @@ const getProfile = () => {
 			headers: authHeader(),
 		})
 		.then((response) => {
-			return response.data;
+			if (response && response.data && response.data.result) {
+				return response.data.result;
+			}
 		});
 };
 

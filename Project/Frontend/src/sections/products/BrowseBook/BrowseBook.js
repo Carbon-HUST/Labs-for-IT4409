@@ -8,13 +8,13 @@ export default function BrowseBook() {
 	useEffect(() => {
 		async function fetchData() {
 			const result = await ProductService.getBooks(1);
-			setList(result);
+			setList(result.data);
 		}
 
 		fetchData();
 	}, []);
 	return (
-		<div className='content-page'>
+		<div className='content-page' id='browse-book'>
 			<div className='container-fluid'>
 				<div className='wrapper-content'>
 					<div className='content-item'>

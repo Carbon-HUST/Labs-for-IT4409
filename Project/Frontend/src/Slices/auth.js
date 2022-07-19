@@ -1,16 +1,23 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { AdminService } from "../Services";
 
 import AuthService from "../Services/auth.service";
 import { errorMessage, successMessage } from "./message";
 const user = JSON.parse(localStorage.getItem("user"));
+const isAdminL = JSON.parse(localStorage.getItem("admin"));
 
 export const login = createAsyncThunk(
 	"user/login",
-	async ({ email, password }, thunkAPI) => {
+	async ({ email, password, isAdmin }, thunkAPI) => {
 		try {
-			const data = await AuthService.login(email, password);
-			thunkAPI.dispatch(getProfile());
-			return { user: data };
+			let data;
+			if (!isAdmin) {
+				data = await AuthService.login(email, password);
+				thunkAPI.dispatch(getProfile());
+			} else {
+				data = await AdminService.login(email, password);
+			}
+			return { user: data, isAdmin };
 		} catch (error) {
 			const message =
 				(error.response && error.response.data && error.response.data.msg) ||
@@ -78,8 +85,18 @@ export const logout = createAsyncThunk("auth/logout", async (thunkAPI) => {
 	}
 });
 const initialState = user
-	? { isLoggedIn: true, user, profile: null }
-	: { isLoggedIn: false, user: null, profile: null };
+	? {
+			isLoggedIn: true,
+			user,
+			profile: null,
+			isAdmin: isAdminL ? isAdminL : false,
+	  }
+	: {
+			isLoggedIn: false,
+			user: null,
+			profile: null,
+			isAdmin: false,
+	  };
 
 const authSlice = createSlice({
 	name: "auth",
@@ -88,10 +105,12 @@ const authSlice = createSlice({
 		[login.fulfilled]: (state, action) => {
 			state.isLoggedIn = true;
 			state.user = action.payload.user;
+			state.isAdmin = action.payload.isAdmin;
 		},
 		[login.rejected]: (state, action) => {
 			state.isLoggedIn = false;
 			state.user = null;
+			state.isAdmin = false;
 		},
 		[getProfile.fulfilled]: (state, action) => {
 			state.profile = action.payload.profile;

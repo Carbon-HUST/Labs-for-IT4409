@@ -90,6 +90,14 @@ img {
 					font-size: var(--small-font-size);
 					font-weight: 600;
 					color: var(--login-color-light);
+					label {
+						display: inline-block;
+						font-weight: normal;
+						color: #3f414d;
+						font-size: 16px;
+						line-height: 1.8;
+						text-align: center;
+					}
 				}
 				.login__button {
 					display: block;

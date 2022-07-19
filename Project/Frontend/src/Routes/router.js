@@ -2,10 +2,17 @@ import { Navigate, useRoutes } from "react-router-dom";
 import Auth from "../Pages/Auth/Auth";
 import Homepage from "../Pages/Home/Homepage";
 import Page404 from "../Pages/Page404/Page404";
+import Author from "../sections/admin/author/Author";
+import EditAuthor from "../sections/admin/author/EditAuthor";
+import BooksCategory from "../sections/admin/books/BooksCategory";
+import EditBook from "../sections/admin/books/EditBook";
+import EditOrder from "../sections/admin/order/EditOrder";
+import Order from "../sections/admin/order/Order";
 import LoginForm from "../sections/auth/LoginForm";
 import RegisterForm from "../sections/auth/RegisterForm";
 import BooksDescription from "../sections/products/BooksDescription/BooksDescription";
 import BrowseBook from "../sections/products/BrowseBook/BrowseBook";
+import PrivateRoute from "./Private/PrivateRoute";
 
 export default function Router() {
 	return useRoutes([
@@ -16,6 +23,24 @@ export default function Router() {
 				{ path: "", element: <BrowseBook /> },
 				{ path: "/product/:id", element: <BooksDescription /> },
 				{ path: "*", element: <Navigate to='/404' /> },
+			],
+		},
+		{
+			path: "/admin",
+			element: (
+				<PrivateRoute>
+					<Homepage />
+				</PrivateRoute>
+			),
+			children: [
+				{ path: "books", element: <BooksCategory /> },
+				{ path: "books/:id", element: <EditBook /> },
+				{ path: "books/new", element: <EditBook /> },
+				{ path: "authors", element: <Author /> },
+				{ path: "authors/:id", element: <EditAuthor /> },
+				{ path: "authors/new", element: <EditAuthor /> },
+				{ path: "orders", element: <Order /> },
+				{ path: "orders/:id", element: <EditOrder /> },
 			],
 		},
 		{

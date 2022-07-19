@@ -6,7 +6,10 @@ const getBooks = async (page, limit = 10) => {
 		.get(API + `books?page=${page}&limit=${limit}`)
 		.then((response) => {
 			if (response && response.data && response.data.results) {
-				return response.data.results;
+				return {
+					data: response.data.results,
+					totalPage: response.data.totalPage,
+				};
 			}
 			return [];
 		});

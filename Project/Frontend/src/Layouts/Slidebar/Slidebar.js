@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import "./Slidebar.style.scss";
 const handleSidebarOnclick = (e) => {
 	let app = document.getElementsByTagName("body")[0];
@@ -9,6 +10,17 @@ const handleSidebarOnclick = (e) => {
 };
 
 export default function Slidebar() {
+	const { isAdmin } = useSelector((state) => state.auth);
+
+	const handleClick = (e, index) => {
+		e.preventDefault();
+		document
+			.querySelectorAll(
+				"#sidebar-scrollbar .iq-sidebar-menu .iq-menu .menu .iq-submenu"
+			)
+			[index].classList.toggle("show");
+		//e.target.classList.toggle("active");
+	};
 	return (
 		<div className='sidebar' id='sidebar'>
 			<div className='sidebar-logo'>
@@ -26,35 +38,71 @@ export default function Slidebar() {
 					<i className='fa-solid fa-bars' />
 				</div>
 			</div>
-			<div className='sidebar-scrollbar'>
-				<div className='scroll-content'>
-					<nav className='sidebar-menu'>
-						<ul className='sidebar-toggle'>
-							<li>
-								<a href='#javascript'>
-									<i className='fa-solid fa-house' />
-									<span>Shop</span>
-									<i className='fa-solid fa-angle-right' />
-								</a>
+			<div id='sidebar-scrollbar'>
+				<nav className='iq-sidebar-menu'>
+					<ul className='iq-menu'>
+						<li className='menu'>
+							<Link
+								to={""}
+								className='iq-waves-effect'
+								onClick={(e) => handleClick(e, 0)}
+							>
+								<i className='las la-home iq-arrow-left' />
+								<span>Shop</span>
+								<i className='ri-arrow-right-s-line iq-arrow-right' />
+							</Link>
+							<ul className='iq-submenu'>
+								<li>
+									<Link to={"/"}>
+										<i className='las la-house-damage' />
+										Home Page
+									</Link>
+								</li>
+								<li>
+									<Link to={"/search"}>
+										<i className='ri-function-line' />
+										Category Page
+									</Link>
+								</li>
+							</ul>
+						</li>
+						{isAdmin ? (
+							<li className='menu'>
+								<Link
+									to={""}
+									className='iq-waves-effect'
+									onClick={(e) => handleClick(e, 1)}
+								>
+									<i className='ri-admin-line iq-arrow-left' />
+									<span>Admin</span>
+									<i className='ri-arrow-right-s-line iq-arrow-right' />
+								</Link>
+								<ul className='iq-submenu'>
+									<li>
+										<Link to={"/admin/books"}>
+											<i className='ri-dashboard-line' />
+											Book List
+										</Link>
+									</li>
+									<li>
+										<Link to={"/admin/authors"}>
+											<i className='ri-list-check-2' />
+											Author List
+										</Link>
+									</li>
+									<li>
+										<Link to={"/admin/orders"}>
+											<i className='ri-shopping-cart-2-line'></i>
+											Order List
+										</Link>
+									</li>
+								</ul>
 							</li>
-							<li>
-								<a href='#javascript'>
-									<i className='fa-solid fa-user' />
-									<span>User</span>
-									<i className='fa-solid fa-angle-right' />
-								</a>
-							</li>
-						</ul>
-					</nav>
-					<div className='sidebar-bottom'>
-						<div className='image'>
-							<img
-								src={window.location.origin + "/images/img-bookshop.jpg"}
-								alt=''
-							/>
-						</div>
-					</div>
-				</div>
+						) : (
+							""
+						)}
+					</ul>
+				</nav>
 			</div>
 		</div>
 	);
