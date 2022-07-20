@@ -40,7 +40,7 @@ const BodyParser = (req, res, next) => {
 
         const form = formidable({
             multiples: true,
-            uploadDir: path.join(__dirname, '..', 'upload'),
+            uploadDir: path.join(__dirname, '..', '..', '..', '..', 'tmp'),
             keepExtensions: true
         });
 

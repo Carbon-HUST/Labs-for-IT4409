@@ -342,8 +342,10 @@ class BookController extends BaseController {
         const book = await Book.findById(this.params.id);
         const thumbnailUrl = book['thumbnail'];
 
-        const thumbnailPublicId = thumbnailUrl.slice(thumbnailUrl.indexOf('webtech'), thumbnailUrl.lastIndexOf('.'));
-        await cloudinary.uploader.destroy(thumbnailPublicId);
+        if (thumbnailUrl != null) {
+            const thumbnailPublicId = thumbnailUrl.slice(thumbnailUrl.indexOf('webtech'), thumbnailUrl.lastIndexOf('.'));
+            await cloudinary.uploader.destroy(thumbnailPublicId);
+        }
 
         if (!this.files[0]) {
             const thumbnailUpdate = await Book.update({ id: this.params.id }, { thumbnail: null });
@@ -357,7 +359,7 @@ class BookController extends BaseController {
             throw new CustomError.BadRequestError("Thumbnail must be an image");
         }
 
-        const newFilePath = path.join(__dirname, '..', 'framework', 'upload', thumbnail.file.newFilename);
+        const newFilePath = path.join(__dirname, '..', '..', '..', 'tmp', thumbnail.file.newFilename);
         let result = null;
 
 
@@ -375,7 +377,7 @@ class BookController extends BaseController {
         // });
         fs.unlinkSync(newFilePath);
 
-        await Book.update({ id: this.body.id }, { thumbnail: result.secure_url });
+        await Book.update({ id: this.params.id }, { thumbnail: result.secure_url });
 
         return this.ok({
             thumbnailSrc: result.secure_url
@@ -510,7 +512,7 @@ class BookController extends BaseController {
         const newImageNumber = Math.min(newImageNumberAllow, this.files.length);
         const newImage = [];
         for (let i = 0; i < newImageNumber; ++i) {
-            const newFilePath = path.join(__dirname, '..', 'framework', 'upload', this.files[i].file.newFilename);
+            const newFilePath = path.join(__dirname, '..', '..', '..', 'tmp', this.files[i].file.newFilename);
             const result = await cloudinary.uploader.upload(
                 newFilePath,
                 {
