@@ -122,6 +122,7 @@ const authSlice = createSlice({
 			state.isLoggedIn = false;
 			state.user = null;
 			state.profile = null;
+			state.isAdmin = null;
 		},
 	},
 });

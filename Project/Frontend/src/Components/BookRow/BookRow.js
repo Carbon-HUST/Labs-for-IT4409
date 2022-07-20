@@ -1,11 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { confirmAlert } from "react-confirm-alert"; // Import
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 import { AdminService } from "../../Services";
 import { successMessage } from "../../Slices/message";
 
 export default function BookRow({ info }) {
+	const dispatch = useDispatch();
 	const handleClickDelete = (id) => {
 		confirmAlert({
 			title: "Warning",
@@ -13,9 +15,9 @@ export default function BookRow({ info }) {
 			buttons: [
 				{
 					label: "Yes",
-					onClick: () => {
-						AdminService.deleteBook(id);
-						successMessage("Xóa thành công!");
+					onClick: async () => {
+						await AdminService.deleteBook(id);
+						dispatch(successMessage("Xóa thành công!"));
 					},
 				},
 				{

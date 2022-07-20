@@ -19,7 +19,6 @@ export default function Slidebar() {
 				"#sidebar-scrollbar .iq-sidebar-menu .iq-menu .menu .iq-submenu"
 			)
 			[index].classList.toggle("show");
-		//e.target.classList.toggle("active");
 	};
 	return (
 		<div className='sidebar' id='sidebar'>
@@ -62,6 +61,12 @@ export default function Slidebar() {
 									<Link to={"/search"}>
 										<i className='ri-function-line' />
 										Category Page
+									</Link>
+								</li>
+								<li>
+									<Link to={"/cart"}>
+										<i class='ri-shopping-cart-2-line'></i>
+										Cart Page
 									</Link>
 								</li>
 								<li>

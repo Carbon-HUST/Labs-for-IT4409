@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+
 import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import "./Navbar.style.scss";
 import Dropdown from "../../Components/Dropdown/Dropdown";
+import { errorMessage } from "../../Slices/message";
 
 const handleOnClickToggleMenu = () => {
 	const app = document.getElementsByTagName("body")[0];
@@ -43,10 +45,11 @@ const routes = [
 ];
 
 export default function Navbar() {
-	const { isLoggedIn, profile } = useSelector((state) => state.auth);
+	const { isLoggedIn, profile, isAdmin } = useSelector((state) => state.auth);
 	const navigate = useNavigate();
 	const [show, isShow] = useState(false);
 	const [link, setLink] = useState([]);
+	const dispatch = useDispatch();
 	const handleOnClickShowDropdown = (e) => {
 		if (isLoggedIn) {
 			isShow(!show);
@@ -68,7 +71,13 @@ export default function Navbar() {
 		});
 		setLink(find.element);
 	});
-
+	const handleLinkToCart = () => {
+		if (isLoggedIn) {
+			navigate("/cart");
+		} else {
+			dispatch(errorMessage("Bạn chưa đăng nhập"));
+		}
+	};
 	return (
 		<div className='top-navbar'>
 			<nav className='navbar'>
@@ -110,18 +119,6 @@ export default function Navbar() {
 										</li>
 									)
 								)}
-							{/* {link.map((item, index) =>
-								index === 0 ? (
-									<li className='breadcrumb-item'>
-										<Link to={item.link}>{item.name}</Link>
-									</li>
-								) : (
-									<li className='breadcrumb-item active' aria-current='page'>
-										<i className='fa-solid fa-angle-right' />
-										{item.link}
-									</li>
-								)
-							)} */}
 						</ul>
 					</nav>
 				</div>
@@ -162,14 +159,16 @@ export default function Navbar() {
 							</a>
 							<div className='dropdown' />
 						</li>
-						<li className='nav-item nav-icon'>
-							<a href='#javascript' className='search-toggle'>
-								<span className='ripple rippleEffect' />
-								<i className='fa-solid fa-cart-shopping' />
-								<span className='badge'>4</span>
-							</a>
-							<div className='dropdown' />
-						</li>
+						{isAdmin || (
+							<li className='nav-item nav-icon' onClick={handleLinkToCart}>
+								<Link to={""} className='search-toggle'>
+									<span className='ripple rippleEffect' />
+									<i className='fa-solid fa-cart-shopping' />
+									<span className='dots' />
+								</Link>
+								<div className='dropdown' />
+							</li>
+						)}
 						<li
 							className={`nav-user ${show ? "is-show" : ""}`}
 							id='btn-user'

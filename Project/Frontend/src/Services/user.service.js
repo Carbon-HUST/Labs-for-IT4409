@@ -76,9 +76,11 @@ const changePassword = (currentPassword, newPassword, confirmNewPassword) => {
 			};
 		});
 };
-export default {
+
+const userService = {
 	getProfile,
 	updateProfile,
 	updateAvatar,
 	changePassword,
 };
+export default userService;
