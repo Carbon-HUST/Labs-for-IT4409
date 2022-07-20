@@ -1,7 +1,24 @@
 import React from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import { CartService } from "../../Services";
+import { errorMessage, successMessage } from "../../Slices/message";
 
 export default function BookItem({ id, title, description, price, thumbnail }) {
+	const { isLoggedIn, isAdmin } = useSelector((state) => state.auth);
+	const dispatch = useDispatch();
+	const handleAddToCart = async () => {
+		if (isLoggedIn) {
+			const { status } = await CartService.addProductToCart(id);
+			if (status === "Bad Request") {
+				dispatch(errorMessage("Sản phẩm đã có trong giỏ hàng"));
+			} else {
+				dispatch(successMessage("Thêm sản phẩm thành công"));
+			}
+		} else {
+			dispatch(errorMessage("Bạn chưa đăng nhập!"));
+		}
+	};
 	return (
 		<div key={id} className='card-item'>
 			<div className='card-image'>
@@ -30,14 +47,16 @@ export default function BookItem({ id, title, description, price, thumbnail }) {
 					<span className='old-price'>10.000</span>
 					<h6>{price}</h6>
 				</div>
-				<div className='card-content-actions'>
-					<Link to=''>
-						<i className='fa-solid fa-cart-shopping' />
-					</Link>
-					<Link to=''>
-						<i className='fa-solid fa-heart' />
-					</Link>
-				</div>
+				{isAdmin || (
+					<div className='card-content-actions'>
+						<Link to='' onClick={handleAddToCart}>
+							<i className='fa-solid fa-cart-shopping' />
+						</Link>
+						<Link to=''>
+							<i className='fa-solid fa-heart' />
+						</Link>
+					</div>
+				)}
 			</div>
 		</div>
 	);

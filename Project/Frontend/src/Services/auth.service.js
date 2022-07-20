@@ -50,10 +50,13 @@ const register = (
 
 const logout = () => {
 	localStorage.removeItem("user");
+	localStorage.removeItem("admin");
 };
-export default {
+
+const authService = {
 	login,
 	register,
 	getProfile,
 	logout,
 };
+export default authService;

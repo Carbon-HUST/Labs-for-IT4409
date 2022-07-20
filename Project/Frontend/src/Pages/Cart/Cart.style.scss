@@ -1,611 +1,346 @@
-body {
-    margin: 0;
-    padding: 0;
-    font-family: "Roboto", sans-serif;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 1.8;
-    color: #777d74;
+* {
+	padding: 0px;
+	margin: 0px;
+	box-sizing: border-box;
+}
+a {
+	text-decoration: none;
+	border: none;
+}
+ul {
+	list-style: none;
+}
+h1,
+h2,
+h3,
+h4,
+h5 {
+	font-weight: 500;
+	line-height: 1.5;
+	color: #11141b;
 }
 
-*, ::after, ::before {
-    box-sizing: border-box;
-}
-
-.content-page {
-    overflow: hidden;
-    margin-left: 80px;
-    padding: 125px 15px 0;
-    min-height: 100vh;
-
-    .content-fluid {
-        width: 100%;
-        padding-right: 15px;
-        padding-left: 15px;
-        margin-right: auto;
-        margin-left: auto;
-
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            margin-right: -15px;
-            margin-left: -15px;
-            align-self: center;
-            width: 100%;
-
-            .card-block {
-                display: none;
-            }
-
-            .show {
-                display: flex;
-            } 
-
-            .item-container {
-                position: relative;
-                width: 100%;
-                padding-left: 15px;
-                padding-right: 15px;
-
-                .iq-card {
-                    background: #fff;
-                    margin-bottom: 30px;
-                    box-shadow: 0px 4px 20px 0px rgba(44, 101, 144, 0.1);
-
-                    .iq-card-header {
-                        display: flex;
-                        justify-content: space-between;
-                        padding: 20px;
-                        align-items: center;
-                        border-bottom: 1px solid #f1f1f1;
-
-                        .iq-header-title h4 {
-                            font-size: 1.4em;
-                            margin: 0;
-                            line-height: 1.5;
-                            font-weight: 500;
-                            color: #11141b;
-                        }
-                    }
-
-                    .iq-card-body {
-                        padding: 20px;
-
-                        .list-inline {
-                            list-style: none;
-                            padding: 0;
-                            margin: 0;
-
-                            .checkout-product {
-                                margin-bottom: 20px;
-                                border-bottom: 1px solid #f1f1f1;
-                                padding-bottom: 25px;
-
-                                .checkout-product-container {
-                                    display: flex;
-                                    flex-wrap: wrap;
-                                    margin-left: -15px;
-                                    margin-right: -15px;
-                                    align-items: center;
-
-                                    .col1 {
-                                        position: relative;
-                                        width: 100%;
-                                        padding-left: 15px;
-                                        padding-right: 15px;
-
-                                        .checkout-product-img {
-                                            vertical-align: middle;
-                                            max-height: 100px;
-                                            max-width: 80px;
-                                            display: inline-block;
-
-                                            a img {
-                                                border-radius: 5px;
-                                                max-width: 100%;
-                                                height: auto;
-                                            }
-                                        }
-                                    }
-
-                                    .col2 {
-                                        position: relative;
-                                        width: 100%;
-                                        padding-left: 15px;
-                                        padding-right: 15px;
-
-                                        .checkout-product-details {
-                                            h5 {
-                                                font-size: 1.2em;
-                                                margin: 0;
-                                                font-weight: 500;
-                                                line-height: 1.5;
-                                                color: #11141b;
-                                            }
-
-                                            .text-success {
-                                                color: #49f0d3;
-                                                margin-top: 0;
-                                                margin-bottom: 1rem;
-                                            }
-                                        }
-                                    }
-
-                                    .col3 {
-                                        position: relative;
-                                        width: 100%;
-                                        padding-left: 15px;
-                                        padding-right: 15px;
-                                        .row {
-                                            .price-container {
-                                                position: relative;
-                                                width: 100%;
-                                                padding-left: 15px;
-                                                padding-right: 15px;
-
-                                                .price-container-flex {
-                                                    display: flex;
-                                                    flex-wrap: wrap;
-                                                    margin-left: -15px;
-                                                    margin-right: -15px;
-                                                    align-items: center;
-                                                    margin-top: 0.5rem;
-
-                                                    .quantity {
-                                                        position: relative;
-                                                        width: 100%;
-                                                        padding-left: 15px;
-                                                        padding-right: 15px;
-
-                                                        .qty-btn {
-                                                            border: 1px solid #ededf0;
-                                                            background: #fff;
-                                                            height: 28px;
-                                                            width: 30px;
-                                                        }
-
-                                                        #quantity {
-                                                            display: inline-block;
-                                                            width: 30px;
-                                                            height: 28px;
-                                                            border: 1px solid #ededf0;
-                                                            text-align: center;
-                                                        }
-
-                                                        
-                                                    }
-
-                                                    .price {
-                                                        position: relative;
-                                                        width: 100%;
-                                                        padding-left: 15px;
-                                                        padding-right: 15px;
-                                                    }
-                                                }
-                                            }
-
-                                            .remove {
-                                                position: relative;
-                                                padding-left: 15px;
-                                                padding-right: 15px;
-                                                width: 100%;
-
-                                                a {
-                                                    color: black;
-                                                    font-size: 20px;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    .iq-card-body {
-                        .mt3 {
-                            margin-top: 1rem;
-                        }
-
-                        .infor {
-                            position: relative;
-                            width: 100%;
-                            padding-left: 15px;
-                            padding-right: 15px;
-
-                            .form-group {
-                                margin-bottom: 1rem;
-
-                                label {
-                                    display: inline-block;
-                                    margin-bottom: 0.5rem;
-                                    color: #3f414d
-                                }
-
-                                .form-control {
-                                    height: 45px;
-                                    line-height: 45px;
-                                    background: transparent;
-                                    border: 1px solid #f1f1f1;
-                                    border-radius: 5px;
-                                    font-size: 14px;
-                                    color: #a09e9e;
-                                    display: block;
-                                    padding: 0.375rem 0.75rem;
-                                    font-weight: 400;
-                                    width: 100%;
-                                    outline: medium none;
-                                }
-
-                                .form-control:focus {
-                                    border-color: #0dd6b8;
-                                    box-shadow: none;
-                                    background-color: #fff;
-                                }
-                            }
-
-                            .btn-save {
-                                background: #0dd6b8;
-                                border-color: #0dd6b8;
-                                font-size: 14px;
-                                border-radius: 4px;
-                                color: #fff;
-                                display: inline-block;
-                                text-align: center;
-                                vertical-align: middle;
-                                padding: 0.375rem 0.75rem;
-                                border: 1px solid transparent;
-                                cursor: pointer;
-                            }
-                        }
-                    }
-
-                    .iq-card-body {
-                        .card-information {
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                        }
-
-                        form {
-                            margin-top: 1rem;
-
-                            .cvv {
-                                display: flex;
-                                align-items: center;
-
-                                .cvv-input {
-                                    margin-left: 1rem;
-                                    margin-right: 1rem;
-
-                                    .form-control {
-                                        height: 45px;
-                                        line-height: 45px;
-                                        background: transparent;
-                                        border: 1px solid #f1f1f1;
-                                        border-radius: 5px;
-                                        font-size: 14px;
-                                        color: #a09e9e;
-                                        display: block;
-                                        padding: 0.375rem 0.75rem;
-                                        font-weight: 400;
-                                        width: 100%;
-                                        outline: medium none;
-                                    }
-                                }
-
-                                .btn-continue {
-                                    background: #0dd6b8;
-                                    border-color: #0dd6b8;
-                                    font-size: 14px;
-                                    border-radius: 4px;
-                                    color: #fff;
-                                    display: inline-block;
-                                    text-align: center;
-                                    vertical-align: middle;
-                                    padding: 0.375rem 0.75rem;
-                                    border: 1px solid transparent;
-                                    cursor: pointer;
-                                }
-                            }
-                        }
-
-                        .card-lists {
-                            .form-group {
-                                margin-bottom: 1rem;
-
-                                .options {
-                                    position: relative;
-                                    display: block;
-                                    min-height: 1.5rem;
-                                    padding-left: 1.5rem;
-
-                                    .input-radio {
-                                        position: absolute;
-                                        left: 0;
-                                        width: 1rem;
-                                        height: 1.25rem;
-                                        
-                                    }
-
-                                    label {
-                                        position: relative;
-                                        margin-bottom: 0;
-                                        vertical-align: top;
-                                        color: #3f414d;
-                                        display: inline-block;
-                                    }
-                                }
-                            }
-                        }
-
-                        .add-card {
-                            a {
-                                text-decoration: none;
-                                color: #0dd6b8;
-                                
-                                i {
-                                    font-size: 18px;
-                                    margin-right: 0.5rem;
-                                    vertical-align: middle;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            .bill-container {
-                position: relative;
-                width: 100%;
-                padding-left: 15px;
-                padding-right: 15px;
-
-                .iq-card {
-                    background: #fff;
-                    margin-bottom: 30px;
-                    box-shadow: 0px 4px 20px 0px rgba(44, 101, 144, 0.1);
-
-                    .iq-card-body {
-                        padding: 20px;
-
-                        p {
-                            margin-top: 0;
-                            margin-bottom: 1rem;    
-                        }
-
-                        .line {
-                            display: flex;
-                            justify-content: space-between;
-
-                            a {
-                                color: #0dd6b8;
-                                text-decoration: none;
-                            }
-
-                            .text-success {
-                                color: #0dd6b8;
-                            }
-
-                            .text-dark {
-                                color: #3f414d;
-                            }
-                        }
-
-                        hr {
-                            border-color: #f1f1f1;
-                            margin-top: 1rem;
-                            margin-bottom: 1rem;
-                            border: 0;
-                            border-top: 1px solid rgba(0, 0, 0, .1)
-                        }
-
-                        .mb1 {
-                            margin-bottom: 0.25rem;
-                        }
-
-                        #place-holder {
-                            background: #0dd6b8;
-                            border-color: #0dd6b8;
-                            font-size: 14px;
-                            border-radius: 4px;
-                            border: 1px solid transparent;
-                            margin-top: 1rem;
-                            padding: 0.375rem 0.75rem;
-                            display: block;
-                            color: #fff;
-                            text-align: center;
-                            text-decoration: none;
-                            line-height: 1.5;
-                        }
-
-                        #place-holder:hover {
-                            background: #49f0d3;
-                            transition: all 0.5s ease;
-                        }
-                    }
-
-                    .card-body {
-                        padding: 0;
-                        
-                        .list-inline {
-                            padding: 0;
-                            margin: 0;
-                            list-style: none;
-
-                            .policy-container {
-                                border-bottom: 1px solid #ededf0;
-                                align-items: center;
-                                display: flex;
-
-                                .iq-checkout-icon {
-                                    height: 60px;
-                                    width: 60px;
-                                    line-height: 60px;
-                                    font-size: 20px;
-                                    text-align: center;
-                                }
-
-                                h6 {
-                                    font-size: 1.0em;
-                                    line-height: 1.3em;
-                                    margin: 0;
-                                    font-weight: bold;
-                                    color: #11141b;
-                                }
-
-                                i {
-                                    color: #777d74;
-                                }
-                            }
-                        }
-                    }
-
-                    .iq-card-body {
-                        h4 {
-                            margin-bottom: 0.5rem;
-                            font-size: 1.4em;
-                            margin-top: 0;
-                            color: #11141b;
-                        }
-
-                        .deliver-address {
-                            background: #0dd6b8;
-                            border-color: #0dd6b8;
-                            font-size: 14px;
-                            border-radius: 4px;
-                            margin-top: 0.25rem;
-                            display: block;
-                            color: #fff;
-                            text-decoration: none;
-                            text-align: center;
-                            border: 1px solid transparent;
-                            padding: 0.375rem 0.75rem;
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@media screen and (max-width: 1299px) {
-    .content-page {
-        margin-left: 0;
-        padding: 116px 15px 0;
-    }
-}
-
-@media screen and (max-width: 1024px) {
-    .checkout-product .checkout-product-container .col2 .checkout-product-details {
-        h5 {
-            font-size: 1em;
-        }
-        
-        p {
-            font-size: 14px;
-        }
-    }
-}
-
-@media screen and (max-width: 991px) {
-    .content-page {
-        padding: 103px 15px 0; 
-    }
-}
-
-@media screen and (max-width: 767px) {
-    .content-page {
-        padding: 103px 0 0; 
-    }
-}
-
-@media screen and (max-width: 575px) {
-    .checkout-product {
-        text-align: center;
-
-        .checkout-product-img {
-            margin-top: 15px;
-        }
-
-        .checkout-product-details {
-            margin: 15px 0;
-        }
-    }
-    .price span {
-        margin-top: 10px;
-        display: block;
-    }
+#cart {
+	overflow: hidden;
+	margin-left: 300px;
+	padding: 125px 15px 0;
+	min-height: 100vh;
+	transition: all 0.3s ease-out 0s;
+	.container-fluid {
+		width: 100%;
+		padding-right: 15px;
+		padding-left: 15px;
+		margin-left: auto;
+		margin-right: auto;
+		.wrapper-content {
+			display: flex;
+			flex-wrap: wrap;
+			margin-right: -15px;
+			margin-left: -15px;
+			align-items: center;
+
+			.checkout {
+				display: block;
+				flex: 0 0 100%;
+				max-width: 100%;
+				position: relative;
+				width: 100%;
+				.checkout-wrapper {
+					display: flex;
+					flex-wrap: wrap;
+					margin-left: -15px;
+					margin-right: -15px;
+					.checkout__cart {
+						position: relative;
+						width: 100%;
+						padding-left: 15px;
+						padding-right: 15px;
+						.checkout__cart__card {
+							background: #ffffff;
+							border-radius: 5px;
+							margin-bottom: 30px;
+							border: none;
+							box-shadow: 0px 4px 20px 0px rgba(44, 101, 144, 0.1);
+							.checkout__cart__card--header {
+								display: flex;
+								padding: 20px;
+								align-items: center;
+								border-bottom: 1px solid #f1f1f1;
+								justify-content: space-between;
+								.card--header--title {
+									h4 {
+										font-size: 1.4em;
+									}
+								}
+							}
+							.checkout__cart__card--body {
+								padding: 20px;
+								.checkout--list {
+									.checkout-product {
+										margin-bottom: 20px;
+										border-bottom: 1px solid #f1f1f1;
+										padding-bottom: 25px;
+										.checkout-product-item {
+											display: flex;
+											align-items: center;
+											flex-wrap: wrap;
+											margin-right: -15px;
+											margin-left: -15px;
+											.item-img {
+												position: relative;
+												width: 100%;
+												padding-left: 15px;
+												padding-right: 15px;
+												span {
+													vertical-align: middle;
+													max-height: 100px;
+													max-width: 80px;
+													display: inline-block;
+													a {
+														img {
+															border-radius: 5px;
+															max-width: 100%;
+															height: auto;
+															vertical-align: middle;
+															border-style: none;
+														}
+													}
+												}
+											}
+											.item-info {
+												position: relative;
+												width: 100%;
+												padding-right: 15px;
+												padding-left: 15px;
+												.checkout-product-details {
+													h5 {
+														font-size: 1.2em;
+													}
+													p {
+														color: #49f0d3;
+														margin-bottom: 1rem;
+														.price {
+															h5 {
+																font-size: 1.2 em;
+															}
+														}
+													}
+												}
+											}
+											.item-actions {
+												position: relative;
+												width: 100%;
+												padding-right: 15px;
+												padding-left: 15px;
+												.item-actions-wrapper {
+													display: flex;
+													flex-wrap: wrap;
+													margin-right: -15px;
+													margin-left: -15px;
+													align-items: center;
+
+													.price-container {
+														position: relative;
+														width: 100%;
+														padding-left: 15px;
+														padding-right: 15px;
+														.price-container-flex {
+															display: flex;
+															flex-wrap: wrap;
+															margin-left: -15px;
+															margin-right: -15px;
+															align-items: center;
+															margin-top: 0.5rem;
+															.quantity {
+																position: relative;
+																width: 100%;
+																padding-left: 15px;
+																padding-right: 15px;
+																.qty-btn {
+																	display: inline-block;
+																	cursor: pointer;
+																	vertical-align: top;
+																	border: 1px solid #ededf0;
+																	background: #ffffff;
+																	height: 28px;
+																	width: 30px;
+																}
+																input {
+																	display: inline-block;
+																	width: 30px;
+																	height: 28px;
+																	border: 1px solid #ededf0;
+																	text-align: center;
+																	outline: medium none;
+																	overflow: visible;
+																}
+															}
+															.price {
+																position: relative;
+																width: 100%;
+																padding-right: 15px;
+																padding-left: 15px;
+															}
+														}
+													}
+													.remove {
+														position: relative;
+														width: 100%;
+														padding-left: 15px;
+														padding-right: 15px;
+														padding-top: 10px;
+														a {
+															cursor: pointer;
+															font-size: 20px;
+															color: #3f414d;
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					.checkout__order {
+						position: relative;
+						width: 100%;
+						padding-left: 15px;
+						padding-right: 15px;
+						.checkout__order__card {
+							background: #ffffff;
+							border-radius: 5px;
+							margin-bottom: 30px;
+							border: none;
+							box-shadow: 0px 4px 20px 0px rgba(44, 101, 144, 0.1);
+							.card-body {
+								padding: 20px;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 @media screen and (min-width: 575px) {
-    .col1 {
-        flex: 0 0 16.67%;
-        max-width: 16.67%;
-    }
-
-    .col2 {
-        flex: 0 0 33.33%;
-        max-width: 33.33%;
-    }
-
-    .col3 {
-        flex: 0 0 50%;
-        max-width: 50%;
-
-        .row {
-            .price-container{
-                flex: 0 0 83.33%;
-                max-width: 83.33%;
-
-                .quantity {
-                    flex: 0 0 58.33%;
-                    max-width: 58.33%;
-                }
-
-                .price {
-                    flex: 0 0 41.67%;
-                    max-width: 41.67%;
-                }
-            }
-
-            .remove {
-                flex: 0 0 16.67%;
-                max-width: 16.67%;
-            }
-        }
-        
-    }
-    
+	.checkout-product {
+		.checkout-product-item {
+			.item-actions {
+				.item-actions-wrapper {
+					.price-container {
+						flex: 0 0 83.33%;
+						max-width: 83.33%;
+						.price-container-flex {
+							.quantity {
+								flex: 0 0 50%;
+								max-width: 50%;
+							}
+							.price {
+								flex: 0 0 50%;
+								max-width: 50%;
+							}
+						}
+					}
+					.remove {
+						flex: 0 0 16.67%;
+						max-width: 16.67%;
+					}
+				}
+			}
+		}
+	}
 }
 
+@media screen and (max-width: 575px) {
+	.checkout-product {
+		text-align: center;
+	}
+	.product-price {
+		margin-top: 10px;
+		display: block;
+	}
+	.item-info {
+		.checkout-product-details {
+			margin: 15px 0 !important;
+		}
+	}
+}
+
+@media screen and (min-width: 576px) {
+	.checkout-product {
+		.checkout-product-item {
+			.item-img {
+				flex: 0 0 calc(100% / 6);
+				max-width: calc(100% / 6);
+			}
+			.item-info {
+				flex: 0 0 calc(100% / 3);
+				max-width: calc(100% / 3);
+			}
+			.item-actions {
+				flex: 0 0 50%;
+				max-width: 50%;
+				.item-actions-wrapper {
+					.price-container {
+						.price-container-flex {
+							.quantity {
+								flex: 0 0 58.333333%;
+								max-width: 58.333333%;
+							}
+							.price {
+								flex: 0 0 41.666667%;
+								max-width: 41.666667%;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+@media screen and (max-width: 767px) {
+	#cart {
+		padding: 103px 0 0 !important;
+	}
+}
 @media screen and (min-width: 768px) {
-    .quantity {
-        flex: 0 0 50%;
-        max-width: 50%;
-    }
-    
-    .price {
-        flex: 0 0 50%;
-        max-width: 50%;
-    }
-
-    .iq-card-body {
-        .infor {
-            flex: 0 0 50%;
-            max-width: 50%;
-        }
-    }
+}
+@media screen and (min-width: 992px) {
+	#cart {
+		.container-fluid {
+			.wrapper-content {
+				.checkout {
+					.checkout-wrapper {
+						.checkout__cart {
+							flex: 0 0 66.666667%;
+							max-width: 66.666667%;
+						}
+						.checkout__order {
+							flex: 0 0 33.333333%;
+							max-width: 33.333333%;
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
-@media screen and (min-width: 992px) { 
-    .item-container {
-        flex: 0 0 66.67%;
-        max-width: 66.67%;
-    }
+@media screen and (max-width: 1024px) {
+	h5 {
+		font-size: 1em !important;
+	}
+	p {
+		font-size: 14px !important;
+	}
+}
 
-    .bill-container {
-        flex: 0 0 33.33%;
-        max-width: 33.33%;
-    }
+@media screen and (max-width: 1299px) {
+	#cart {
+		margin-left: 0;
+		padding: 116px 15px 0;
+	}
 }

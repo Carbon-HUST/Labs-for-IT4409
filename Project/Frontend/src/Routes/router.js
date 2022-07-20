@@ -1,5 +1,6 @@
 import { Navigate, useRoutes } from "react-router-dom";
 import Auth from "../Pages/Auth/Auth";
+import Cart from "../Pages/Cart/Cart";
 import Homepage from "../Pages/Home/Homepage";
 import Page404 from "../Pages/Page404/Page404";
 import Profile from "../Pages/Profile/Profile";
@@ -29,6 +30,14 @@ export default function Router() {
 					element: (
 						<PrivateUserRouter>
 							<Profile />
+						</PrivateUserRouter>
+					),
+				},
+				{
+					path: "/cart",
+					element: (
+						<PrivateUserRouter>
+							<Cart />
 						</PrivateUserRouter>
 					),
 				},

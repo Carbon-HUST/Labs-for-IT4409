@@ -238,7 +238,8 @@ const updateStatusOrder = (id, status) => {
 			};
 		});
 };
-export default {
+
+const adminService = {
 	login,
 	getAllPublisher,
 	getAllGenre,
@@ -255,3 +256,4 @@ export default {
 	getOrderById,
 	updateStatusOrder,
 };
+export default adminService;

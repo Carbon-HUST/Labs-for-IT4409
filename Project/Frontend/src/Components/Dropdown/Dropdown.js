@@ -1,14 +1,16 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import "./Dropdown.style.scss";
 import { logout } from "../../Slices/auth";
 
 export default function Dropdown() {
 	const dispatch = useDispatch();
+	const navigate = useNavigate();
 	const { isAdmin, profile } = useSelector((state) => state.auth);
 	const handleSignOut = () => {
 		dispatch(logout());
+		navigate("/auth/login");
 	};
 	return (
 		<div className='sub-dropdown' id='sub-dropdown-user'>
