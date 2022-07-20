@@ -377,7 +377,7 @@ class BookController extends BaseController {
         // });
         fs.unlinkSync(newFilePath);
 
-        await Book.update({ id: this.body.id }, { thumbnail: result.secure_url });
+        await Book.update({ id: this.params.id }, { thumbnail: result.secure_url });
 
         return this.ok({
             thumbnailSrc: result.secure_url
