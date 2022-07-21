@@ -207,7 +207,11 @@
 							vertical-align: baseline;
 						}
 					}
+					#search-icon {
+						display: none;
+					}
 				}
+
 				.nav-user {
 					padding-top: 1rem;
 					line-height: normal;
@@ -300,6 +304,9 @@
 				display: none !important;
 			}
 		}
+	}
+	#search-icon {
+		display: inline-block !important;
 	}
 	.content-page {
 		padding: 103px 15px 0 !important;

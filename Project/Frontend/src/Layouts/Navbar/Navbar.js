@@ -96,12 +96,12 @@ export default function Navbar() {
 						<i className='fa-solid fa-bars' />
 					</div>
 					<div className='navbar-logo'>
-						<a href='#javascript' className='header-logo'>
+						<Link to={"/"} className='header-logo'>
 							<img src='./images/logo.png' alt='' />
 							<div className='logo-title'>
 								<span>Bookstore</span>
 							</div>
-						</a>
+						</Link>
 					</div>
 				</div>
 				<div className='navbar-breadcrumb'>
@@ -154,11 +154,19 @@ export default function Navbar() {
 				<div className='navbar-collapse' id='navbar-collapse'>
 					<ul className='navbar-list'>
 						<li className='nav-item nav-icon'>
-							<a href='#javascript' className='search-toggle'>
+							<Link to={"/search"} className='search-toggle' id='search-icon'>
+								<span className='ripple rippleEffect' />
+								<i className='fa-solid fa-magnifying-glass' />
+								<span className='dots' />
+							</Link>
+							<div className='dropdown' />
+						</li>
+						<li className='nav-item nav-icon'>
+							<Link to={""} className='search-toggle'>
 								<span className='ripple rippleEffect' />
 								<i className='fa-solid fa-bell' />
 								<span className='dots' />
-							</a>
+							</Link>
 							<div className='dropdown' />
 						</li>
 						<li className='nav-item nav-icon'>
