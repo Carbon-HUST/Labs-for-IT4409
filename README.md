@@ -7,6 +7,4 @@
 - Nguyễn Hải Anh - 20194222
 - Lê Tôn Năng - 20194339
 
-### Các branch chính:
-- main: Các bài tập Labs
-- Project: Bài tập lớn
+### Bài tập lớn: thư mục Project
