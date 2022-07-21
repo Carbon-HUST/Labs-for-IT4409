@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { AdminService, ProductService } from "../../../Services";
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -8,24 +9,14 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export default function EditBook() {
 	const { id } = useParams();
-	const [book, setBook] = useState({
-		title: "",
-		edition: "",
-		stock: "",
-		price: "",
-		number_of_page: "",
-		publisher_id: -1,
-		description: "",
-		authors: -1,
-		genres: -1,
-	});
+	const [book, setBook] = useState();
+	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	const [data, setData] = useState({
 		genre: [],
 		publisher: [],
 		author: [],
 	});
-	console.log(book);
 	useEffect(() => {
 		async function fetchGetBook() {
 			const res = await ProductService.getBookById(id);
@@ -62,9 +53,19 @@ export default function EditBook() {
 	});
 
 	const formik = useFormik({
-		initialValues: {
-			title: book.title,
-		},
+		initialValues: book
+			? {
+					title: book.title,
+					description: book.description,
+					price: book.price,
+					edition: book.edition,
+					stock: book.stock,
+					publisher_id: book.publisher.id,
+					authors: book.authors[0].id,
+					number_of_page: book.number_of_page,
+					genres: book.genres[0].id,
+			  }
+			: {},
 		enableReinitialize: true,
 		validationSchema: BookSchema,
 		onSubmit: async () => {
@@ -72,21 +73,22 @@ export default function EditBook() {
 			if (!id) {
 				const result = await AdminService.createBook(value);
 				if (result) {
-					successMessage("Tạo mới sách thành công!");
+					dispatch(successMessage("Tạo mới sách thành công!"));
 				}
 			} else {
 				const result = await AdminService.updateBook({ ...value, id });
 				if (result) {
-					successMessage("Cập nhập sách thành công!");
+					dispatch(successMessage("Cập nhập sách thành công!"));
 				}
 			}
 		},
 	});
 
-	const { values, handleChange, handleSubmit } = formik;
+	const { values, errors, handleChange, handleSubmit } = formik;
 	const handleBack = () => {
 		navigate("/admin/books");
 	};
+	console.log(errors);
 	return (
 		<div className='content-page' id='edit-book'>
 			<div className='container-fluid'>

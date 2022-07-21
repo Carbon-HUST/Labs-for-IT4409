@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import {Link} from "react-router-dom"
 import BookItem from "../../../Components/BookItem/BookItem";
 import { ProductService } from "../../../Services";
 import "./BrowseBook.style.scss";
@@ -24,9 +25,9 @@ export default function BrowseBook() {
 									<h4 className='card-title'>Browse Books</h4>
 								</div>
 								<div className='card-header-toolbar'>
-									<a href='#javascript' className='view-more'>
+									<Link to={"/search"} className='view-more'>
 										View more
-									</a>
+									</Link>
 								</div>
 							</div>
 							<div className='card-body'>

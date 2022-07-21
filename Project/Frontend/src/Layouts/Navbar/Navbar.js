@@ -46,6 +46,8 @@ const routes = [
 
 export default function Navbar() {
 	const { isLoggedIn, profile, isAdmin } = useSelector((state) => state.auth);
+
+	const [search, setSearch] = useState("");
 	const navigate = useNavigate();
 	const [show, isShow] = useState(false);
 	const [link, setLink] = useState([]);
@@ -77,6 +79,10 @@ export default function Navbar() {
 		} else {
 			dispatch(errorMessage("Bạn chưa đăng nhập"));
 		}
+	};
+	const handleSearch = (e) => {
+		e.preventDefault();
+		navigate(`/search?searchText=${search}`);
 	};
 	return (
 		<div className='top-navbar'>
@@ -122,18 +128,22 @@ export default function Navbar() {
 						</ul>
 					</nav>
 				</div>
-				<div className='search-bar'>
-					<form action='#' className='searchbox'>
-						<input
-							type='text'
-							className='search-input'
-							placeholder='Search Here ...'
-						/>
-						<a href='#javascript' className='search-link'>
-							<i className='fa-solid fa-magnifying-glass' />
-						</a>
-					</form>
-				</div>
+				{isAdmin || (
+					<div className='search-bar'>
+						<form className='searchbox'>
+							<input
+								type='text'
+								className='search-input'
+								placeholder='Search Here ...'
+								value={search}
+								onChange={(e) => setSearch(e.target.value)}
+							/>
+							<Link to={""} onClick={handleSearch} className='search-link'>
+								<i className='fa-solid fa-magnifying-glass' />
+							</Link>
+						</form>
+					</div>
+				)}
 				<button
 					className='navbar-toggle'
 					id='navbar-toggle'
@@ -174,7 +184,11 @@ export default function Navbar() {
 							id='btn-user'
 							onClick={handleOnClickShowDropdown}
 						>
-							<Link to={""} id='waves-effect'>
+							<Link
+								to={""}
+								id='waves-effect'
+								onClick={(e) => e.preventDefault()}
+							>
 								<span className='rippleEffect'></span>
 								<img
 									src={

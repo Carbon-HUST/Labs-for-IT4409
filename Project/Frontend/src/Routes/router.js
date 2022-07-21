@@ -4,6 +4,7 @@ import Cart from "../Pages/Cart/Cart";
 import Homepage from "../Pages/Home/Homepage";
 import Page404 from "../Pages/Page404/Page404";
 import Profile from "../Pages/Profile/Profile";
+import SearchPage from "../Pages/SearchPage/SearchPage";
 import Author from "../sections/admin/author/Author";
 import EditAuthor from "../sections/admin/author/EditAuthor";
 import BooksCategory from "../sections/admin/books/BooksCategory";
@@ -41,6 +42,7 @@ export default function Router() {
 						</PrivateUserRouter>
 					),
 				},
+				{ path: "/search", element: <SearchPage /> },
 				{ path: "*", element: <Navigate to='/404' /> },
 			],
 		},

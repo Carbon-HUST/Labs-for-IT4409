@@ -65,7 +65,7 @@ export default function Slidebar() {
 								</li>
 								<li>
 									<Link to={"/cart"}>
-										<i class='ri-shopping-cart-2-line'></i>
+										<i className='ri-shopping-cart-2-line'></i>
 										Cart Page
 									</Link>
 								</li>

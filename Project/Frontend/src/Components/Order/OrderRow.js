@@ -1,19 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { confirmAlert } from "react-confirm-alert"; // Import
-import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
-import { AdminService } from "../../Services";
-import { successMessage } from "../../Slices/message";
 
 export default function OrderRow({ order }) {
+	const formatDateTime = (date) => {
+		return date && new Date(date).toISOString().slice(0, 10);
+	};
 	return (
 		<tr key={order && order.id}>
 			<td>{order && order.id}</td>
 			<td>{order && order.total}</td>
 			<td>{order && order.status}</td>
 			<td>
-				<p>{order && order.time}</p>
+				<p>{order && formatDateTime(order.time)}</p>
 			</td>
 			<td className='boder-none'>
 				<div className='action'>

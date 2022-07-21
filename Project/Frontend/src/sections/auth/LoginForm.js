@@ -73,7 +73,7 @@ export default function LoginForm() {
 							value={values.isAdmin}
 							onChange={handleChange}
 						/>
-						Login with admin
+						Login as admin
 					</label>
 				</div>
 				<a

@@ -81,7 +81,9 @@ export default function Author() {
 												</thead>
 												<tbody>
 													{authors
-														? authors.map((item) => <AuthorRow author={item} />)
+														? authors.map((item) => (
+																<AuthorRow key={item.id} author={item} />
+														  ))
 														: ""}
 												</tbody>
 											</table>

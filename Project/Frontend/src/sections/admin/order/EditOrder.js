@@ -14,14 +14,17 @@ export default function EditOrder() {
 		total: "",
 		address: "",
 	});
+	const formatDateTime = (date) => {
+		return date && new Date(date).toISOString().slice(0, 10);
+	};
 	const navigate = useNavigate();
 	const [status, setStatus] = useState(-1);
+	async function fetchData() {
+		const data = await AdminService.getOrderById(id);
+		setOrder(data);
+		setStatus(data.status);
+	}
 	useEffect(() => {
-		async function fetchData() {
-			const data = await AdminService.getOrderById(id);
-			setOrder(data);
-			setStatus(data.status);
-		}
 		fetchData();
 	}, [id]);
 	const handleChange = (e) => {
@@ -30,14 +33,12 @@ export default function EditOrder() {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		try {
-			const { statusRes, msg } = await AdminService.updateStatusOrder(
-				id,
-				status
-			);
+			const { statusRes } = await AdminService.updateStatusOrder(id, status);
 			if (statusRes === "Bad Request") {
-				dispatch(errorMessage(msg));
+				dispatch(errorMessage("Không thể thay đổi trạng thái đơn hàng"));
+				fetchData();
 			} else {
-				dispatch(successMessage(msg));
+				dispatch(successMessage("Thay đổi thành công"));
 			}
 		} catch (err) {
 			console.log(err);
@@ -76,7 +77,7 @@ export default function EditOrder() {
 												type='text'
 												className='form-control'
 												name='edition'
-												defaultValue={order && order.time}
+												defaultValue={order && formatDateTime(order.time)}
 												disabled
 											/>
 										</div>

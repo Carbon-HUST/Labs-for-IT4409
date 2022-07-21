@@ -22,7 +22,40 @@ const getBookById = async (id) => {
 		return {};
 	});
 };
-export default {
+const getAllBook = () => {
+	return axios.get(API + "books?page=1&limit=20").then((response) => {
+		if (response && response.data && response.data.results) {
+			return {
+				data: response.data.results,
+				totalPage: response.data.totalPage,
+			};
+		}
+		return [];
+	});
+};
+
+const filterBook = (searchText, authors, genres) => {
+	return axios
+		.get(API + `books/filter`, {
+			params: {
+				searchText: searchText,
+				authors: authors,
+				genres: genres,
+				page: 1,
+				limit: 100,
+			},
+		})
+		.then((res) => {
+			return res.data.results;
+		})
+		.catch((err) => {
+			return [];
+		});
+};
+const productService = {
 	getBooks,
 	getBookById,
+	getAllBook,
+	filterBook,
 };
+export default productService;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import "./Dropdown.style.scss";
@@ -8,7 +8,8 @@ export default function Dropdown() {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	const { isAdmin, profile } = useSelector((state) => state.auth);
-	const handleSignOut = () => {
+	const handleSignOut = (e) => {
+		e.preventDefault();
 		dispatch(logout());
 		navigate("/auth/login");
 	};

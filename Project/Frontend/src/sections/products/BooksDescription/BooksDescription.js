@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { successMessage, errorMessage } from "../../../Slices/message";
+import { CartService } from "../../../Services";
 import { Link, useParams } from "react-router-dom";
 import { ProductService } from "../../../Services";
 import "./BooksDescription.style.scss";
@@ -14,6 +17,20 @@ export default function BooksDescription() {
 
 		fetchData();
 	}, [params.id]);
+	const { isLoggedIn, isAdmin } = useSelector((state) => state.auth);
+	const dispatch = useDispatch();
+	const handleAddToCart = async () => {
+		if (isLoggedIn) {
+			const { status } = await CartService.addProductToCart(params.id);
+			if (status === "Bad Request") {
+				dispatch(errorMessage("Sản phẩm đã có trong giỏ hàng"));
+			} else {
+				dispatch(successMessage("Thêm sản phẩm thành công"));
+			}
+		} else {
+			dispatch(errorMessage("Bạn chưa đăng nhập!"));
+		}
+	};
 	return (
 		<div className='content-page'>
 			<div className='container-fluid'>
@@ -33,10 +50,8 @@ export default function BooksDescription() {
 														<Link to={""}>
 															<img
 																src={
-																	book.images && book.images.length >= 1
-																		? book.images[0]
-																		: window.location.origin +
-																		  "/images/books/01.jpg"
+																	window.location.origin +
+																	"/images/books/01.jpg"
 																}
 																alt=''
 															/>
@@ -46,10 +61,8 @@ export default function BooksDescription() {
 														<Link to={""}>
 															<img
 																src={
-																	book.images && book.images.length >= 2
-																		? book.images[1]
-																		: window.location.origin +
-																		  "/images/books/02.jpg"
+																	window.location.origin +
+																	"/images/books/02.jpg"
 																}
 																alt=''
 															/>
@@ -59,10 +72,8 @@ export default function BooksDescription() {
 														<Link to={""}>
 															<img
 																src={
-																	book.images && book.images.length >= 3
-																		? book.images[2]
-																		: window.location.origin +
-																		  "/images/books/03.jpg"
+																	window.location.origin +
+																	"/images/books/03.jpg"
 																}
 																alt=''
 															/>
@@ -74,10 +85,7 @@ export default function BooksDescription() {
 												<Link to={""}>
 													<img
 														src={
-															book.images && book.images.length >= 4
-																? book.images[3]
-																: window.location.origin +
-																  "/images/books/04.jpg"
+															window.location.origin + "/images/books/04.jpg"
 														}
 														alt=''
 													/>
@@ -89,7 +97,7 @@ export default function BooksDescription() {
 										<h3>{book.title}</h3>
 										<div className='description-price'>
 											<span className='description-old-price'>
-												{book.olPrice || "50.000"}
+												{book.olPrice || book.price / 2}
 											</span>
 											<span className='description-new-price'>
 												{book.price}
@@ -118,10 +126,14 @@ export default function BooksDescription() {
 												<span>Jhone Steben</span>
 											)}
 										</div>
-										<div className='description-actions'>
-											<Link to={""}>Add to cart</Link>
-											<Link to={""}>Read Sample</Link>
-										</div>
+										{isAdmin || (
+											<div className='description-actions'>
+												<Link to={""} onClick={handleAddToCart}>
+													Add to cart
+												</Link>
+												<Link to={""}>Read Sample</Link>
+											</div>
+										)}
 										<div className='description-wishlist'>
 											<Link to={""}>
 												<span className='wishlist-icon'>

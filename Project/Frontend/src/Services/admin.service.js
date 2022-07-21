@@ -74,9 +74,10 @@ const createBook = ({
 			}
 		)
 		.then((response) => {
-			if (response.statusText === "OK") {
-				return true;
-			}
+			return true;
+		})
+		.catch((err) => {
+			return false;
 		});
 };
 
@@ -111,9 +112,10 @@ const updateBook = ({
 			}
 		)
 		.then((response) => {
-			if (response.statusText === "OK") {
-				return true;
-			}
+			return true;
+		})
+		.catch((err) => {
+			return false;
 		});
 };
 

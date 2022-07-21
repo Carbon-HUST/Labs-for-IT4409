@@ -84,7 +84,9 @@ export default function BooksCategory() {
 												</thead>
 												<tbody>
 													{listBooks
-														? listBooks.map((item) => <BookRow info={item} />)
+														? listBooks.map((item) => (
+																<BookRow key={item.id} info={item} />
+														  ))
 														: ""}
 												</tbody>
 											</table>

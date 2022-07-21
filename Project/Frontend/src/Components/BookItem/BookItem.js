@@ -4,7 +4,14 @@ import { Link } from "react-router-dom";
 import { CartService } from "../../Services";
 import { errorMessage, successMessage } from "../../Slices/message";
 
-export default function BookItem({ id, title, description, price, thumbnail }) {
+export default function BookItem({
+	id,
+	title,
+	description,
+	price,
+	thumbnail,
+	author,
+}) {
 	const { isLoggedIn, isAdmin } = useSelector((state) => state.auth);
 	const dispatch = useDispatch();
 	const handleAddToCart = async () => {
@@ -32,7 +39,7 @@ export default function BookItem({ id, title, description, price, thumbnail }) {
 			<div className='card-content'>
 				<div className='card-content-header'>
 					<h6>{title}</h6>
-					<p>Jhone Steben</p>
+					<p>{author}</p>
 					<div className='rating'>
 						<span>
 							<i className='fa-solid fa-star' />
