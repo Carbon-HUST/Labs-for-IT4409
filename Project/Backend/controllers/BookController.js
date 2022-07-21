@@ -170,8 +170,8 @@ class BookController extends BaseController {
         let page = this.query.page || 1;
         const limit = parseInt(this.query.limit) || 10;
 
-        const genreIds = this.body.genres || null;
-        const authorIds = this.body.authors || null;
+        const genreIds = this.query.genres || null;
+        const authorIds = this.query.authors || null;
 
         let filterByAuthor = [];
         if (authorIds != null) {
