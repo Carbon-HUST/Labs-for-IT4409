@@ -192,26 +192,29 @@ class BookController extends BaseController {
             filterIds = filterIds.filter((e, i, filterIds) => filterIds.indexOf(e) !== i);
         }
 
-        if (filterIds.length === 0) {
-            return this.ok({
-                page,
-                pageSize: limit,
-                totalPage: 0,
-                results: []
-            });
-        }
-
-        let filterBooks = [];
-        filterBooks = await Book.where({
-            id: {
-                operator: 'IN',
-                value: filterIds
-            },
-            title: {
+        const condition = {}
+        if (searchText != "") {
+            condition.title = {
                 operator: 'LIKE',
                 value: `%${searchText}%`
             }
-        }).all();
+        }
+
+        if (filterIds.length !== 0) {
+            // return this.ok({
+            //     page,
+            //     pageSize: limit,
+            //     totalPage: 0,
+            //     results: []
+            // });
+            condition.id = {
+                operator: 'IN',
+                value: filterIds
+            }
+        }
+
+        let filterBooks = [];
+        filterBooks = await Book.where(condition).all();
 
         if (filterBooks.length === 0) {
             return {
