@@ -1,0 +1,11 @@
+<kml xmlns="http://www.opengis.net/kml/2.2">
+    <Plancemark>
+        <name>Viện đào tạo liên lục</name>
+        <description>Nhà TC</description>
+        <Point>
+            <coordinates>
+                21.002896528069986, 105.84632532453858
+            </coordinates>
+        </Point>
+    </Plancemark>
+</kml>

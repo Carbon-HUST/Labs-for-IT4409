@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 2-1</title>
+</head>
+<body>
+    <form action="DongDuyTien-20194381.php" method="POST">
+        <h3>Complete the form</h3>
+        Your name: <input type="text" name="name" placeholder="Enter your name">
+        <br><br>
+        Your class: <input type="text" name="class" placeholder="Enter your class">
+        <br><br>
+        Your university: <input type="text" name="university" placeholder="Enter your university">
+        <br><br>
+        Your hobby is: <br><br>
+        <input type="checkbox" id="hobby1" name="hobby[]" value="Study">
+        <label for="hobby[]"> Study</label>
+        <br><br>
+        <input type="checkbox" id="hobby2" name="hobby[]" value="Play games">
+        <label for="hobby[]"> Play games</label>
+        <br><br>
+        <input type="checkbox" onclick="
+            var input = document.getElementById('hobby3'); 
+            if(this.checked) { 
+                input.disabled = false; 
+                input.focus();
+            } 
+            else {
+                input.disabled=true;
+            }" />Other
+        <input id="hobby3" name="hobby[]" disabled="disabled"/>
+        <br><br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
